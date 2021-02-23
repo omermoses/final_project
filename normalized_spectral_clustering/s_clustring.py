@@ -1,13 +1,13 @@
 import numpy as np
 
+def spectral_clustering(data, n):
 
-# def create_affinity_graph(data, scale):
-#     msq = data * data
-#     scaled = -msq / scale
-#     scaled[np.where(np.isnan(scaled))] = 0.0
-#     aff_matrix = np.exp(scaled)
-#     aff_matrix.flat[::data.shape[0] + 1] = 0.0  # zero out the diagonal
-#     return aff_matrix
+
+    # Calculate weighted adjacency matrix
+    W = create_weighted_adjacency_matrix(data, n)
+
+    # Calculate L norm
+    LN = calculate_L_norm(W, n)
 
 
 def create_weighted_adjacency_matrix(data, n):
@@ -26,6 +26,30 @@ def create_weighted_adjacency_matrix(data, n):
         W[:, j] = col
     np.fill_diagonal(W, val=0.0) # zero out the diagonal
     return W
+
+
+def calculate_L_norm(W, n):
+    """
+    create L normalized
+    params: wighted matrix
+            n - number of samples
+        return: LN - The normalized L
+
+    """
+    I = np.identity(n, dtype='float64')
+    D_times_half = np.diag(np.power(A.sum(axis=1, dtype='float64'), -0.5))
+    return I - (np.matmul(np.matmul(D_times_half, W), D_times_half))
+
+
+def create_diagonal_degree_matrix(wighted_matrix):
+    """
+    create D
+    params: wighted matrix
+            n- number of samples
+        return: D - diagonal degree matrix
+
+    """
+    return np.diag(wighted_matrix.sum(axis=1, dtype='float64'))
 
 
 A = np.asarray([[3, 2, 4], [2, 0, 2], [4, 2, 3]], dtype='float64')
