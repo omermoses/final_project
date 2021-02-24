@@ -9,18 +9,17 @@ def spectral_clustering(data, n):
 
     # Calculate L norm
     LN = calculate_L_norm(W, n)
-    print("L norm:\n", LN)
-
 
     # Find eigenvalues and eigenvectors
-    A, Q = qr(LN, n)
-    print("eigval:\n", np.diagonal(A))
-    print("real eigval:\n", np.linalg.eig(LN)[0])
-    print("eigvectors:\n", Q)
-    print("real eigvectors:\n", np.linalg.eig(LN)[1])
+    A, Q = qr_algorithm(LN, n)
 
+    # Sorted eigenvalues and eigenvectors
+    sorted_eigenvalues_index = np.argsort(np.diagonal(A))
+    sorted_eigenvalues = np.diagonal(A)[sorted_eigenvalues_index]
+    sorted_eigenvectors = Q[:, sorted_eigenvalues_index]
 
-
+    # Determine k
+    k = eigengap_heuristic(sorted_eigenvalues, n)
 
 
 def create_weighted_adjacency_matrix(data, n):
@@ -91,7 +90,7 @@ def gram_schmidt(A, n):
     return Q, R
 
 
-def qr(A, n):
+def qr_algorithm(A, n):
     """
     e = 0.0001
     calculate eigenvalues and eigenvectors
@@ -114,29 +113,49 @@ def qr(A, n):
     return a, q
 
 
+def eigengap_heuristic(eigenvals_array, n):
+    """
+       determine k
+       params: eigenvals_array- ***sorted*** eigenvalues
+               n- number of samples
+       return: k- argmax(delta_i) when i from 0...n/2-1
+       """
+    gaps = np.abs(eigenvals_array[1:int(n / 2)] - eigenvals_array[:int(n / 2) - 1])
+    k = np.argmax(gaps)  # returns the smallest index in case of equility
+    return k
+
+
 # A = np.asarray([[2, -1, 0], [-1, 2, -1], [0, -1, 2]], dtype='float64')
-# A=sklearn.datasets.make_spd_matrix(10)
+# A = sklearn.datasets.make_spd_matrix(10)
 # print("A\n" , A)
 # print("***************")
 #
-Y = np.array([[5,3,1,4],[3,6,0,2.5],[1,0,3,1.7],[4,2.5, 1.7, 10]])
-Q,R= gram_schmidt(Y,4)
-print("Q\n", Q)
-print("***************")
-print("R\n",R)
-print("**************")
-print("Q.T @ Q\n",Q.T @ Q)
-print("**************")
-print("Q @ R\n",Q @ R)
-print("**************")
+# Y = np.array([[5,3,1,4],[3,6,0,2.5],[1,0,3,1.7],[4,2.5, 1.7, 10]])
+# Q,R= gram_schmidt(A,10)
+# print("Q\n", Q)
+# print("***************")
+# print("R\n",R)
+# print("**************")
+# print("Q.T @ Q\n",Q.T @ Q)
+# print("**************")
+# print("Q @ R\n",Q @ R)
+# print("**************")
 
-a,q=qr(Y,4)
-print("a diagonal\n",np.diagonal(a))
-print("*************")
-print("q\n", q)
-print(np.linalg.eig(Y))
+# a, q = qr_algorithm(Y, 4)
+# print("a diagonal\n", np.diagonal(a))
+# print("*************")
+# print("q\n", q)
+# print(np.linalg.eig(A))
+# sorted_eigenvalues_index=np.argsort(np.diagonal(a))
+# sorted_eigenvalues=np.diagonal(a)[sorted_eigenvalues_index]
+# sotred_eigenvectors=q[:,sorted_eigenvalues_index]
+# print(sorted_eigenvalues_index)
+# print(sorted_eigenvalues)
+# print(sotred_eigenvectors)
+
+# print(eigengap_heuristic(np.asarray([1, 2, 3, 4, 5, 6, 7, 8]), 8))
 
 #
-# samples, header = make_blobs(n_samples=10, centers=5, n_features=3,
-#                       random_state=0)
-# spectral_clustering(samples, 10)
+samples, header = make_blobs(n_samples=10, centers=5, n_features=3,
+                      random_state=0)
+spectral_clustering(samples, 10)
