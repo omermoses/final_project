@@ -1,13 +1,26 @@
 import numpy as np
+import sklearn as sklearn
+from sklearn.datasets import make_blobs
+
 
 def spectral_clustering(data, n):
-
-
     # Calculate weighted adjacency matrix
     W = create_weighted_adjacency_matrix(data, n)
 
     # Calculate L norm
     LN = calculate_L_norm(W, n)
+    print("L norm:\n", LN)
+
+
+    # Find eigenvalues and eigenvectors
+    A, Q = qr(LN, n)
+    print("eigval:\n", np.diagonal(A))
+    print("real eigval:\n", np.linalg.eig(LN)[0])
+    print("eigvectors:\n", Q)
+    print("real eigvectors:\n", np.linalg.eig(LN)[1])
+
+
+
 
 
 def create_weighted_adjacency_matrix(data, n):
@@ -24,7 +37,7 @@ def create_weighted_adjacency_matrix(data, n):
         col = np.linalg.norm(col, 2, axis=1)
         col = np.exp(-col / 2)
         W[:, j] = col
-    np.fill_diagonal(W, val=0.0) # zero out the diagonal
+    np.fill_diagonal(W, val=0.0)  # zero out the diagonal
     return W
 
 
@@ -37,7 +50,7 @@ def calculate_L_norm(W, n):
 
     """
     I = np.identity(n, dtype='float64')
-    D_times_half = np.diag(np.power(A.sum(axis=1, dtype='float64'), -0.5))
+    D_times_half = np.diag(np.power(W.sum(axis=1, dtype='float64'), -0.5))
     return I - (np.matmul(np.matmul(D_times_half, W), D_times_half))
 
 
@@ -52,9 +65,9 @@ def create_diagonal_degree_matrix(wighted_matrix):
     return np.diag(wighted_matrix.sum(axis=1, dtype='float64'))
 
 
-A = np.asarray([[3, 2, 4], [2, 0, 2], [4, 2, 3]], dtype='float64')
-w = create_weighted_adjacency_matrix(A, 3)
-print(w)
+# A = np.asarray([[3, 2, 4], [2, 0, 2], [4, 2, 3]], dtype='float64')
+# w = create_weighted_adjacency_matrix(A, 3)
+# print(w)
 
 
 def gram_schmidt(A, n):
@@ -91,7 +104,7 @@ def qr(A, n):
     e = 0.0001
     a = A
     q = np.identity(n)
-    for i in range(1000):
+    for i in range(n):
         Q, R = gram_schmidt(a, n)
         a = R @ Q
         dist = np.absolute(q) - np.absolute(q @ Q)
@@ -100,18 +113,30 @@ def qr(A, n):
         q = q @ Q
     return a, q
 
-A=np.asarray([[2,-1,0],[-1,2,-1],[0,-1,2]], dtype='float64')
-# Q,R= gram_schmidt(A,3)
-# print(Q)
-# print("***************")
-# print(R)
-# print("**************")
-# print(Q.T @ Q)
-# print("**************")
-# print(Q @ R)
 
-# a,q=qr(A,3)
-# print(a)
-# print("*************")
-# print(q)
-# print(np.linalg.eig(A))
+# A = np.asarray([[2, -1, 0], [-1, 2, -1], [0, -1, 2]], dtype='float64')
+# A=sklearn.datasets.make_spd_matrix(10)
+# print("A\n" , A)
+# print("***************")
+#
+Y = np.array([[5,3,1,4],[3,6,0,2.5],[1,0,3,1.7],[4,2.5, 1.7, 10]])
+Q,R= gram_schmidt(Y,4)
+print("Q\n", Q)
+print("***************")
+print("R\n",R)
+print("**************")
+print("Q.T @ Q\n",Q.T @ Q)
+print("**************")
+print("Q @ R\n",Q @ R)
+print("**************")
+
+a,q=qr(Y,4)
+print("a diagonal\n",np.diagonal(a))
+print("*************")
+print("q\n", q)
+print(np.linalg.eig(Y))
+
+#
+# samples, header = make_blobs(n_samples=10, centers=5, n_features=3,
+#                       random_state=0)
+# spectral_clustering(samples, 10)
