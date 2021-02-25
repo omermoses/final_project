@@ -1,5 +1,4 @@
 import numpy as np
-import sklearn as sklearn
 from sklearn.datasets import make_blobs
 
 
@@ -19,8 +18,17 @@ def spectral_clustering(data, n):
     sorted_eigenvectors = Q[:, sorted_eigenvalues_index]
 
     # Determine k
-    k = eigengap_heuristic(sorted_eigenvalues, n)
+    k = eigengap_heuristic(sorted_eigenvalues, n)  #(int)
+    print(k)
 
+    # Create U
+    print(sorted_eigenvectors)
+    sorted_eigenvectors = sorted_eigenvectors[:, :k+1]
+
+    # Creat T matrix
+    T = create_t_matrix(sorted_eigenvectors, n)
+
+    return T, k
 
 def create_weighted_adjacency_matrix(data, n):
     """
@@ -125,12 +133,26 @@ def eigengap_heuristic(eigenvals_array, n):
     return k
 
 
+def create_t_matrix(U, n):
+    """
+    Form matrix T from U by renormalizing each of U’s rows to have unit length,
+
+    :return:
+    """
+    print(U)
+    print((np.power(np.sum(np.power(U, 2), axis=1), 0.5)).reshape(n, 1))
+    return U/(np.power(np.sum(np.power(U, 2), axis=1), 0.5)).reshape(n, 1)
+
+
+
+
+
 # A = np.asarray([[2, -1, 0], [-1, 2, -1], [0, -1, 2]], dtype='float64')
 # A = sklearn.datasets.make_spd_matrix(10)
 # print("A\n" , A)
 # print("***************")
 #
-# Y = np.array([[5,3,1,4],[3,6,0,2.5],[1,0,3,1.7],[4,2.5, 1.7, 10]])
+Y = np.array([[5,3,1,4],[3,6,0,2.5],[1,0,3,1.7],[4,2.5, 1.7, 10]])
 # Q,R= gram_schmidt(A,10)
 # print("Q\n", Q)
 # print("***************")
@@ -158,4 +180,4 @@ def eigengap_heuristic(eigenvals_array, n):
 #
 samples, header = make_blobs(n_samples=10, centers=5, n_features=3,
                       random_state=0)
-spectral_clustering(samples, 10)
+spectral_clustering(Y, 4)
