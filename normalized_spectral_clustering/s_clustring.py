@@ -1,5 +1,4 @@
 import numpy as np
-import sklearn as sklearn
 from sklearn.datasets import make_blobs
 
 
@@ -21,6 +20,8 @@ def spectral_clustering(data, n):
     # Determine k
     k = eigengap_heuristic(sorted_eigenvalues, n)
 
+    # Creat T matrix
+    T = create_t_matrix()
 
 def create_weighted_adjacency_matrix(data, n):
     """
@@ -123,6 +124,18 @@ def eigengap_heuristic(eigenvals_array, n):
     gaps = np.abs(eigenvals_array[1:int(n / 2)] - eigenvals_array[:int(n / 2) - 1])
     k = np.argmax(gaps)  # returns the smallest index in case of equility
     return k
+
+
+def create_t_matrix(U):
+    """
+    Form matrix T from U by renormalizing each of U’s rows to have unit length,
+
+    :return:
+    """
+
+
+
+
 
 
 # A = np.asarray([[2, -1, 0], [-1, 2, -1], [0, -1, 2]], dtype='float64')
