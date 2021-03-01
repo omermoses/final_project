@@ -128,7 +128,8 @@ def eigengap_heuristic(eigenvals_array, n):
                n- number of samples
        return: k- argmax(delta_i) when i from 0...n/2-1
        """
-    gaps = np.abs(eigenvals_array[1:int(n / 2)] - eigenvals_array[:int(n / 2) - 1])
+    i=int(np.ceil(n/2)) #celling(n/2)
+    gaps = np.abs(eigenvals_array[1:i+1] - eigenvals_array[:i])
     k = np.argmax(gaps)  # returns the smallest index in case of equility
     return k
 
@@ -178,6 +179,6 @@ Y = np.array([[5,3,1,4],[3,6,0,2.5],[1,0,3,1.7],[4,2.5, 1.7, 10]])
 # print(eigengap_heuristic(np.asarray([1, 2, 3, 4, 5, 6, 7, 8]), 8))
 
 #
-samples, header = make_blobs(n_samples=10, centers=5, n_features=3,
+samples, header = make_blobs(n_samples=7, centers=3, n_features=3,
                       random_state=0)
-spectral_clustering(Y, 4)
+spectral_clustering(samples, 7)

@@ -29,3 +29,5 @@ def set_text(n, k_generate, k_used, j_kmeans, j_spectral):
     text += "The Jaccard measure for K-means: " + str(j_kmeans)
     return text
 
+def jaccard_measure(clusters, origin_header):
+
