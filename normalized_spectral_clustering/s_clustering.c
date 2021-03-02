@@ -14,6 +14,7 @@ static double** calculate_L_norm(double **wighted_matrix, double **D, int n);
 static double** diagonal_matrix_power(double **matrix, double power, int n);
 static double** matrix_subtraction(double **first, double **second, int n);
 static double** matrix_multiply(double **first, double **second, int n);
+static double l2_norm(double *vector, int d);
 
 
 static int spectral_clustering(PyObject *observations, int k, int n, int d, int max_iter);
@@ -174,5 +175,30 @@ static double** init_doubles_matrix(int n) {
     return matrix;
 }
 
+static void gram_schmidt(double** matrix_a, double** matrix_q, double** matrix_r, int n){
+    /*
+        calculate Modified Gram Schmidt
+        params: A- ndarray of size nXn with dtype='float64'
+                n- A dim
+        return: Q- orthogonal matrix
+                R- diagonal matrix
+    */
+    for (i=0; i<n; i++){
+        get
+        matrix_r[i][i]=l2_norm()
+    }
+}
+
+static double l2_norm(double *vector, int d){
+    // calculate L2 norm
+    int index;
+    double dist;
+    dist = 0;
+
+    for (index =0; index < d; index++) {
+        dist += pow(vector[index],2)
+    }
+    return pow(dist, 0.5);
+}
 
 
