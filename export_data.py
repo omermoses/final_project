@@ -1,6 +1,6 @@
+from collections import defaultdict
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_blobs
-
 
 
 def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_generated, k_used, n):
