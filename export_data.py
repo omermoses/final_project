@@ -17,25 +17,30 @@ def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_gener
     """
     dimension_number = len(samples[0])
     projection = '3d' if dimension_number == 3 else None
-    fig = plt.figure()
+    fig = plt.figure(dpi = 500)
     ax1 = fig.add_subplot(121, projection=projection)
-    plot(dimension_number, samples, clusters_kmeans, ax1)
+    sctt1=plot(dimension_number, samples, clusters_kmeans, ax1, "k_means")
     ax2 = fig.add_subplot(122, projection=projection)
-    plot(dimension_number, samples, clusters_spectral, ax2)
+    sctt2=plot(dimension_number, samples, clusters_spectral, ax2, "Normalized Spectral")
     j_k, j_s = jaccard_measure(clusters_kmeans, clusters_spectral, header)
-    fig.text(0.5, -0.1, s=set_text(n, k_generated, k_used, j_k, j_s), fontsize=14, ha='center')
+    fig.text(0.5, -0.2, s=set_text(n, k_generated, k_used, j_k, j_s), fontsize=14, ha='center')
     plt.show()
-    fig.savefig(r'C:\Users\user\PycharmProjects\final_project\Charts.pdf', bbox_inches='tight')
+    fig.savefig(r'Charts.pdf', bbox_inches='tight')
 
 
-def plot(dimension_number, samples, clusters, ax):
+def plot(dimension_number, samples, clusters, ax, title):
     """
     scatter plot with colors according to clusters
     """
     x = samples[:, 0]
     y = samples[:, 1]
-    z = samples[:, 2] if dimension_number == 3 else 0
-    sctt = ax.scatter(x, y, z, c=clusters)
+    if dimension_number == 3:
+        z = samples[:, 2] if dimension_number == 3 else 0
+        sctt = ax.scatter(x, y, z, c=clusters)
+
+    else:
+        sctt = ax.scatter(x, y, c=clusters)
+    plt.title(title)
     return sctt
 
 
@@ -67,9 +72,9 @@ def jaccard_measure(clusters_kmeans, clusters_spectral, origin_header):
     j_spectral = float(len(header_pairs.intersection(spectral_pairs)) / len(header_pairs.union(spectral_pairs)))
     return j_kmeans, j_spectral
 #
-# samples, header = make_blobs(n_samples=7, centers=3, n_features=3,
+# samples, header = make_blobs(n_samples=7, centers=3, n_features=2,
 #                       random_state=0)
-# # print(header)
+# # # print(header)
 # # k,s=jaccard_measure([1,1,2,2,0,0,1], [1,1,0,2,2,0,1], header)
-# # print(k, s)
+# # # print(k, s)
 # create_pdf_file(samples, header, [1,1,2,2,0,0,1], [1,1,0,2,2,0,1] ,3, 3, 7)

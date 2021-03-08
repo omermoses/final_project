@@ -6,6 +6,7 @@ from normalized_spectral_clustering import s_clustring
 from k_means import kmeans
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_blobs
+import export_data
 
 K_MAXIMUM_CAPACITY = 10
 N_MAXIMUM_CAPACITY = 200
@@ -33,7 +34,7 @@ def handle_samples(user_k, user_n, is_random):
     samples, header = make_blobs(n_samples=n, centers=k, n_features=dimension_number,
                                  random_state=0)
 
-    return samples, header, k, n
+    return samples, header, k, n, dimension_number
 
 if __name__ == '__main__':
     """
@@ -57,11 +58,15 @@ if __name__ == '__main__':
         exit(1)
 
     # Generate data for the algorithms
-    samples, header, k_generated, n = handle_samples(args.k, args.n, args.Random)
+    samples, header, k_generated, n, d = handle_samples(args.k, args.n, args.Random)
 
     # Execute Normalized Spectral Clustering Comparison
     spectral_data, k_used = s_clustring.spectral_clustering(samples, n)
-    kmeans.k_mean(k_used, n, k_used, MAX_ITER, spectral_data)
+    spectral_clusters=kmeans.k_mean(k_used, n, k_used, MAX_ITER, spectral_data)
 
     # Execute K-means algorithm
-    # kmeans(k, n, d, MAX_ITER, samples)
+    kmeans_clusters=kmeans.k_mean(k_used, n, d , MAX_ITER, samples)
+    # Export data
+    export_data.create_pdf_file(samples, header,kmeans_clusters, spectral_clusters,k_generated,k_used,n)
+
+

@@ -4,6 +4,8 @@
 #include "stdlib.h"
 #include "stdio.h"
 
+char ERROR_MSG[]="Running Kmeans calculation using c module has failed";
+
 typedef struct Cluster {
     int name, size;
     double *centroid;
@@ -16,9 +18,14 @@ typedef struct Observation {
 } Observation;
 
 static PyObject* run (PyObject *self, PyObject *args);
-static void print_index(PyObject *index, int K);
 
-static int kmeans(PyObject *observations, int k, int n, int d, int max_iter);
+static void convert_index_to_c(PyObject *index, long* index_c);
+
+static PyObject* convert_cluster_to_py(long* obs_cluster_array, int n);
+
+static void create_clusters_array(long *obs_cluster_array, Observation **input_values, long* index, int n);
+
+static int kmeans(PyObject *observations, int k, int n, int d, int max_iter, long* index, long* obs_cluster_array);
 
 static void convert_obs(Observation **input_values, PyObject *observations, int N, int d);
 
@@ -42,11 +49,12 @@ static void insert_obs(Observation *observation, Cluster *best_cluster, int d);
 
 static int create_k_clusters(Observation **observations, Cluster **clusters_array, int k, int d);
 
-static void print_clusters(Cluster **clusters_array, int k, int d);
-
 static void copy(const double *values, double *sum_of_obs, int d);
 
-static int kmeans(PyObject *observations, int k, int n, int d, int max_iter) {
+static int kmeans(PyObject *observations, int k, int n, int d, int max_iter, long* index, long* obs_cluster_array) {
+    /*
+    returns an array of n ints where arr[i]=cluster of obs i in the original data
+    */
     Observation **input_values;
     int is_changed_from_last_run, found_k_clusters, number_of_iter,obs_num;
     Cluster **clusters_array;
@@ -54,7 +62,7 @@ static int kmeans(PyObject *observations, int k, int n, int d, int max_iter) {
     input_values=malloc(n*sizeof(Observation));
     if (input_values==NULL){
         return -1;
-    }
+        }
 
     if (init(input_values, n, d)==-1){
         return -1;}
@@ -67,7 +75,7 @@ static int kmeans(PyObject *observations, int k, int n, int d, int max_iter) {
 
     clusters_array=malloc(k*sizeof(Cluster));
     if (clusters_array==NULL){
-        return -1;
+       return -1;
         }
 
     while (is_changed_from_last_run == 1 && (number_of_iter <= max_iter)) {
@@ -89,29 +97,18 @@ static int kmeans(PyObject *observations, int k, int n, int d, int max_iter) {
             is_changed_from_last_run=update_centroid(clusters_array,k,d);
             obs_num = 0;
             number_of_iter += 1;
-
-
         }
     }
-    print_clusters(clusters_array, k, d);
+    create_clusters_array(obs_cluster_array, input_values, index, n);
     clean(input_values, n, clusters_array, k);
     return 0;
 }
 
-static void print_clusters(Cluster **clusters_array, int k, int d) {
+static void create_clusters_array(long *obs_cluster_array, Observation **input_values, long* index, int n){
+    // create an array where arr[original index of observation]=the cluster obs belongs to
     int i;
-    for (i = 0; i < k; i++) {
-        int j;
-        for (j = 0; j < d; j++) {
-            if (j < d - 1) {
-                printf("%f%s", clusters_array[i]->centroid[j], ",");
-            } else {
-                printf("%f", clusters_array[i]->centroid[j]);
-            }
-        }
-        if (i != k - 1) {
-            printf("\n");
-        }
+    for (i=0; i<n; i++){
+        obs_cluster_array[index[i]]=input_values[i]->cluster->name;
     }
 }
 
@@ -170,19 +167,18 @@ static void convert_obs(Observation **input_values, PyObject *observations, int 
     for (i=0; i<obs_num; i++){
         obs=PyList_GetItem(observations, i);
         if (!PyList_Check(obs)){
-           return;
+           PyErr_Format(PyExc_ValueError, ERROR_MSG);
         }
         obs_size=PyList_Size(obs);
         for (j=0; j<obs_size; j++){
             val=PyList_GetItem(obs, j);
             if (!PyFloat_Check(val)){
-                return;
+                PyErr_Format(PyExc_ValueError, ERROR_MSG);
                 }
             input_values[i]->values[j]=PyFloat_AsDouble(val);
             if (input_values[i]->values[j]== -1 && PyErr_Occurred()){
             /* double too big to fit in a C float, bail out */
-                printf("error");
-                return;
+                PyErr_Format(PyExc_ValueError, ERROR_MSG);
             }
         }
     }
@@ -298,17 +294,36 @@ static int update_centroid(Cluster **clusters_array, int k, int d){
     return is_changed;
 }
 
-static void print_index(PyObject *index, int K){
-    /*print  the indexes of the the observations chosen to be clusters */
+static void convert_index_to_c(PyObject *index, long* index_c){
+    /*convert index list to C */
     int i;
     PyObject *ind;
-    for (i=0; i<K-1; i++){
+    Py_ssize_t index_num;
+    index_num=PyList_Size(index);
+    for (i=0; i<index_num; i++){
         ind=PyList_GetItem(index, i);
-        printf("%ld%s", PyLong_AsLong(ind),",");
+        if (!PyLong_Check(ind)){
+                PyErr_Format(PyExc_ValueError, ERROR_MSG);
+                }
+        index_c[i]=PyLong_AsLong(ind);
+        if (index_c[i]==-1 && PyErr_Occurred()){
+            PyErr_Format(PyExc_ValueError, ERROR_MSG);
+        }
     }
-    ind=PyList_GetItem(index, K-1);
-    printf("%ld\n", PyLong_AsLong(ind));
 }
+
+static PyObject* convert_cluster_to_py(long* obs_cluster_array, int n){
+    /*convert index list to C */
+    int i;
+    PyObject *cluster, *clusters_list=PyList_New(n);
+    for (i=0; i<n; i++){
+        cluster=Py_BuildValue("i", obs_cluster_array[i]);
+        PyList_SetItem(clusters_list, i, cluster);
+    }
+    return clusters_list;
+}
+
+
 
 static PyObject* run (PyObject *self, PyObject *args){
     /*
@@ -320,12 +335,14 @@ static PyObject* run (PyObject *self, PyObject *args){
         N - number of observations
         d - the dimension of each observation
         MAX - max iterations the script should do
-        index - the indexes of the the observations chosen to be clusters
-    * returnes None if the process ended successfully
+        index - the origin index of the observation where the k first is the k centroids we start with
+    * returns a list of clusters to python if the process ended successfully
     */
 
     int K,N,d,MAX_ITER;
-    PyObject *input_observation, *index;
+    PyObject *input_observation, *index, *clusters_list;
+    long* index_c, *obs_cluster_array;
+
     if(!PyArg_ParseTuple(args, "(OiiiiO):run", &input_observation, &K, &N, &d, &MAX_ITER, &index)) {
         return PyErr_Format(PyExc_ValueError, "error in args");
     }
@@ -335,16 +352,34 @@ static PyObject* run (PyObject *self, PyObject *args){
      if (!PyList_Check(index)){
         return PyErr_Format(PyExc_ValueError, "not a list");
     }
-    print_index(index, K);
-    if (kmeans(input_observation, K, N, d, MAX_ITER)==-1){
-        PyErr_Format(PyExc_ValueError, "Running Kmeans calculation using c module has failed");
-    };
-    Py_RETURN_NONE;
+
+    index_c=malloc(N*sizeof(long));
+    if (index_c==NULL){
+    PyErr_Format(PyExc_ValueError, ERROR_MSG);
     }
+    convert_index_to_c(index, index_c);
+    obs_cluster_array=malloc(N*sizeof(long));
+    if (obs_cluster_array==NULL){
+       PyErr_Format(PyExc_ValueError, ERROR_MSG);
+    }
+    //run kmeans
+    if (kmeans(input_observation, K, N, d, MAX_ITER, index_c, obs_cluster_array)==-1){
+        PyErr_Format(PyExc_ValueError, ERROR_MSG);
+    }
+    //convert c list to pyobject
+    clusters_list=convert_cluster_to_py(obs_cluster_array,N);
+    free(obs_cluster_array);
+    free(index_c);
+    printf(clusters_list);
+    return clusters_list;
+    }
+
+
+
 
 static PyMethodDef capiMethods[] = {
     {"run",                   /* the Python method name that will be used */
-      (PyCFunction)run, /* the C-function that implements the Python function and returns static PyObject*  */
+     (PyCFunction)run, /* the C-function that implements the Python function and returns static PyObject*  */
       METH_VARARGS,           /* flags indicating parametersaccepted for this function */
       PyDoc_STR("kmeans++")}, /*  The docstring for the function */
     {NULL, NULL, 0, NULL}     /* The last entry must be all NULL as shown to act as a

@@ -19,11 +19,11 @@ def spectral_clustering(data, n):
 
     # Determine k
     k = eigengap_heuristic(sorted_eigenvalues, n)  #(int)
-    print(k)
+    # print(k)
 
     # Create U
-    print(sorted_eigenvectors)
-    sorted_eigenvectors = sorted_eigenvectors[:, :k+1]
+    # print(sorted_eigenvectors)
+    sorted_eigenvectors = sorted_eigenvectors[:, :k]
 
     # Creat T matrix
     T = create_t_matrix(sorted_eigenvectors, n)
@@ -111,11 +111,11 @@ def qr_algorithm(A, n):
     e = 0.0001
     a = A
     q = np.identity(n)
-    for i in range(n):
+    for i in range(100):
         Q, R = gram_schmidt(a, n)
         a = R @ Q
         dist = np.absolute(q) - np.absolute(q @ Q)
-        if -e <= dist.all() <= e:
+        if (-e <= dist).all() and (dist <= e).all():
             break
         q = q @ Q
     return a, q
@@ -131,7 +131,7 @@ def eigengap_heuristic(eigenvals_array, n):
     i=int(np.ceil(n/2)) #celling(n/2)
     gaps = np.abs(eigenvals_array[1:i+1] - eigenvals_array[:i])
     k = np.argmax(gaps)  # returns the smallest index in case of equility
-    return k
+    return k+1
 
 
 def create_t_matrix(U, n):
@@ -140,8 +140,8 @@ def create_t_matrix(U, n):
 
     :return:
     """
-    print(U)
-    print((np.power(np.sum(np.power(U, 2), axis=1), 0.5)).reshape(n, 1))
+    # print(U)
+    # print((np.power(np.sum(np.power(U, 2), axis=1), 0.5)).reshape(n, 1))
     return U/(np.power(np.sum(np.power(U, 2), axis=1), 0.5)).reshape(n, 1)
 
 
@@ -153,8 +153,8 @@ def create_t_matrix(U, n):
 # print("A\n" , A)
 # print("***************")
 #
-Y = np.array([[5,3,1,4],[3,6,0,2.5],[1,0,3,1.7],[4,2.5, 1.7, 10]])
-# Q,R= gram_schmidt(A,10)
+# Y = np.array([[5,3,1,4],[3,6,0,2.5],[1,0,3,1.7],[4,2.5, 1.7, 10]])
+# Q,R= gram_schmidt(Y,4)
 # print("Q\n", Q)
 # print("***************")
 # print("R\n",R)
@@ -163,12 +163,12 @@ Y = np.array([[5,3,1,4],[3,6,0,2.5],[1,0,3,1.7],[4,2.5, 1.7, 10]])
 # print("**************")
 # print("Q @ R\n",Q @ R)
 # print("**************")
-
+#
 # a, q = qr_algorithm(Y, 4)
 # print("a diagonal\n", np.diagonal(a))
 # print("*************")
 # print("q\n", q)
-# print(np.linalg.eig(A))
+# print(np.linalg.eig(Y))
 # sorted_eigenvalues_index=np.argsort(np.diagonal(a))
 # sorted_eigenvalues=np.diagonal(a)[sorted_eigenvalues_index]
 # sotred_eigenvectors=q[:,sorted_eigenvalues_index]
@@ -179,6 +179,6 @@ Y = np.array([[5,3,1,4],[3,6,0,2.5],[1,0,3,1.7],[4,2.5, 1.7, 10]])
 # print(eigengap_heuristic(np.asarray([1, 2, 3, 4, 5, 6, 7, 8]), 8))
 
 #
-samples, header = make_blobs(n_samples=7, centers=3, n_features=3,
-                      random_state=0)
-spectral_clustering(samples, 7)
+# samples, header = make_blobs(n_samples=7, centers=3, n_features=3,
+#                       random_state=0)
+# spectral_clustering(samples, 7)
