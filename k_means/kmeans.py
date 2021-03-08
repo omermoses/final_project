@@ -3,7 +3,7 @@ import numpy as np
 import mykmeanssp as km
 
 
-def k_mean(K, N, d, MAX_ITER, path):
+def k_mean(K, N, d, MAX_ITER, observations_matrix):
     """
     This function crates arranges the data to be:
         K clusters would be the k first lines at the matrix
@@ -17,12 +17,13 @@ def k_mean(K, N, d, MAX_ITER, path):
         path - path to the data
     """
     np.random.seed(0)
-    observations_matrix = pd.read_csv(path, sep=',', header=None).to_numpy(dtype=np.float64)
     centroid_index_arr = np.empty(K, int)
     centroids_matrix = create_k_clusters(observations_matrix, N, K, d, centroid_index_arr)
     ind = [i for i in range(N) if i not in centroid_index_arr]
+    data_origin_index=(np.concatenate((centroid_index_arr, ind))).tolist()
     observations_matrix = (np.concatenate((centroids_matrix, observations_matrix[ind]), axis=0)).tolist()
-    km.run([observations_matrix, K, N, d, MAX_ITER, centroid_index_arr.tolist()])
+    x=km.run([observations_matrix, K, N, d, MAX_ITER, data_origin_index])
+    return x
 
 
 def create_k_clusters(observations_matrix, N, K, d, centroid_index_arr):

@@ -6,6 +6,7 @@ from normalized_spectral_clustering import s_clustring
 from k_means import kmeans
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_blobs
+import export_data
 
 K_MAXIMUM_CAPACITY = 10
 N_MAXIMUM_CAPACITY = 200
@@ -20,7 +21,7 @@ def handle_samples(user_k, user_n, is_random):
         header - The integer labels for cluster membership of each sample (ndarray type)
     """
 
-    dimension_number = random.randint(2, 3)
+    dimension_number = 2#random.randint(2, 3)
 
     if is_random:
         # The Random flag is true so we choose randomly k and n values
@@ -33,7 +34,7 @@ def handle_samples(user_k, user_n, is_random):
     samples, header = make_blobs(n_samples=n, centers=k, n_features=dimension_number,
                                  random_state=0)
 
-    return samples, header, k, n
+    return samples, header, k, n, dimension_number
 
 if __name__ == '__main__':
     """
@@ -45,8 +46,9 @@ if __name__ == '__main__':
     my_parser = argparse.ArgumentParser()
     my_parser.add_argument('k', action='store', type=int)
     my_parser.add_argument('n', action='store', type=int)
-    my_parser.add_argument('Random', action='store', default=True, type=bool)
+    # my_parser.add_argument('Random', action='store', default=True, type=bool)
 
+    Random=False
     args = my_parser.parse_args()
     if args.k <= 0 or args.n <= 0:
         print("parameters should be greater then 0")
@@ -57,11 +59,17 @@ if __name__ == '__main__':
         exit(1)
 
     # Generate data for the algorithms
-    samples, header, k_generated, n = handle_samples(args.k, args.n, args.Random)
+    samples, header, k_generated, n, d = handle_samples(args.k, args.n, Random)
 
     # Execute Normalized Spectral Clustering Comparison
     spectral_data, k_used = s_clustring.spectral_clustering(samples, n)
-    kmeans.k_mean(k_used, n, k_used, MAX_ITER, spectral_data)
+    spectral_clusters=kmeans.k_mean(k_used, n, k_used, MAX_ITER, spectral_data)
 
     # Execute K-means algorithm
-    # kmeans(k, n, d, MAX_ITER, samples)
+    kmeans_clusters=kmeans.k_mean(k_used, n, d , MAX_ITER, samples)
+    # print(spectral_clusters)
+    # print("*******")
+    # print(kmeans_clusters)
+    export_data.create_pdf_file(samples, header,kmeans_clusters, spectral_clusters,k_generated,k_used,n)
+
+
