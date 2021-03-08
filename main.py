@@ -21,7 +21,7 @@ def handle_samples(user_k, user_n, is_random):
         header - The integer labels for cluster membership of each sample (ndarray type)
     """
 
-    dimension_number = 2#random.randint(2, 3)
+    dimension_number = random.randint(2, 3)
 
     if is_random:
         # The Random flag is true so we choose randomly k and n values
@@ -46,9 +46,8 @@ if __name__ == '__main__':
     my_parser = argparse.ArgumentParser()
     my_parser.add_argument('k', action='store', type=int)
     my_parser.add_argument('n', action='store', type=int)
-    # my_parser.add_argument('Random', action='store', default=True, type=bool)
+    my_parser.add_argument('Random', action='store', default=True, type=bool)
 
-    Random=False
     args = my_parser.parse_args()
     if args.k <= 0 or args.n <= 0:
         print("parameters should be greater then 0")
@@ -59,7 +58,7 @@ if __name__ == '__main__':
         exit(1)
 
     # Generate data for the algorithms
-    samples, header, k_generated, n, d = handle_samples(args.k, args.n, Random)
+    samples, header, k_generated, n, d = handle_samples(args.k, args.n, args.Random)
 
     # Execute Normalized Spectral Clustering Comparison
     spectral_data, k_used = s_clustring.spectral_clustering(samples, n)
@@ -67,9 +66,7 @@ if __name__ == '__main__':
 
     # Execute K-means algorithm
     kmeans_clusters=kmeans.k_mean(k_used, n, d , MAX_ITER, samples)
-    # print(spectral_clusters)
-    # print("*******")
-    # print(kmeans_clusters)
+    # Export data
     export_data.create_pdf_file(samples, header,kmeans_clusters, spectral_clusters,k_generated,k_used,n)
 
 
