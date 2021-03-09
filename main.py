@@ -46,7 +46,7 @@ if __name__ == '__main__':
     my_parser = argparse.ArgumentParser()
     my_parser.add_argument('k', action='store', type=int)
     my_parser.add_argument('n', action='store', type=int)
-    my_parser.add_argument('Random', action='store', default=True, type=bool)
+    my_parser.add_argument('Random', action='store', type=bool)
 
     args = my_parser.parse_args()
     if args.k <= 0 or args.n <= 0:

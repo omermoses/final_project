@@ -370,9 +370,9 @@ static PyObject* run (PyObject *self, PyObject *args){
     clusters_list=convert_cluster_to_py(obs_cluster_array,N);
     free(obs_cluster_array);
     free(index_c);
-    printf(clusters_list);
     return clusters_list;
-    }
+}
+
 
 
 
