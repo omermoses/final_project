@@ -12,6 +12,7 @@ def build(c):
     print("Done building")
 
 
-@task(build)
-def run(c, k, n, random=True):
-    c.run("python3.8.5 main.py k n random")
+@task(pre=[build], post=[delete])
+def run(c, k, n, Random=True):
+    print("start running")
+    c.run("python3.8.5 main.py {} {} {}".format(k, n, Random))
