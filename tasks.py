@@ -15,4 +15,7 @@ def build(c):
 @task(pre=[build], post=[delete])
 def run(c, k, n, Random=True):
     print("start running")
-    c.run("python3.8.5 main.py {} {} {}".format(k, n, Random))
+    if Random:
+        c.run("python3.8.5 main.py {} {}".format(k, n))
+    else:
+        c.run("python3.8.5 main.py {} {} --Random".format(k, n))
