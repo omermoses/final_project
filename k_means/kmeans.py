@@ -55,6 +55,5 @@ def squared_euclidean_distance(observation, centroids_df):
     """find cluster’s centroid using squared Euclidean distance
     observation and centroid are lists of size D"""
     dist = (np.power((observation-centroids_df), 2)).sum(axis=1)
-    # dist = (np.power((centroids_df - observation), 2)).sum(axis=1).min()
 
     return dist

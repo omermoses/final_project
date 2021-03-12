@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.datasets import make_blobs
 
 
-def spectral_clustering(data, n):
+def spectral_clustering(data, n, k):
     # Calculate weighted adjacency matrix
     W = create_weighted_adjacency_matrix(data, n)
 
@@ -11,24 +11,23 @@ def spectral_clustering(data, n):
 
     # Find eigenvalues and eigenvectors
     A, Q = qr_algorithm(LN, n)
-
     # Sorted eigenvalues and eigenvectors
     sorted_eigenvalues_index = np.argsort(np.diagonal(A))
     sorted_eigenvalues = np.diagonal(A)[sorted_eigenvalues_index]
     sorted_eigenvectors = Q[:, sorted_eigenvalues_index]
 
-    # Determine k
-    k = eigengap_heuristic(sorted_eigenvalues, n)  #(int)
-    # print(k)
+    if (k is None):
+        # Determine k, else we use the k from function params
+        k = eigengap_heuristic(sorted_eigenvalues, n)  # (int)
 
     # Create U
-    # print(sorted_eigenvectors)
     sorted_eigenvectors = sorted_eigenvectors[:, :k]
 
     # Creat T matrix
     T = create_t_matrix(sorted_eigenvectors, n)
 
     return T, k
+
 
 def create_weighted_adjacency_matrix(data, n):
     """
@@ -72,11 +71,6 @@ def create_diagonal_degree_matrix(wighted_matrix):
     return np.diag(wighted_matrix.sum(axis=1, dtype='float64'))
 
 
-# A = np.asarray([[3, 2, 4], [2, 0, 2], [4, 2, 3]], dtype='float64')
-# w = create_weighted_adjacency_matrix(A, 3)
-# print(w)
-
-
 def gram_schmidt(A, n):
     """
         calculate Modified Gram Schmidt
@@ -94,7 +88,7 @@ def gram_schmidt(A, n):
         Q[:, i] = U[:, i] / R[i, i]
         for j in range(i + 1, n):
             R[i, j] = (Q[:, i]).T @ U[:, j]
-            U[:, j] = U[:, j] - R[i, j] * Q[:, i]
+            U[:, j] -= R[i, j] * Q[:, i]
     return Q, R
 
 
@@ -110,14 +104,16 @@ def qr_algorithm(A, n):
     """
     e = 0.0001
     a = A
-    q = np.identity(n)
-    for i in range(100):
+    q = np.identity(n, dtype=np.float64)
+    for i in range(n):
         Q, R = gram_schmidt(a, n)
         a = R @ Q
-        dist = np.absolute(q) - np.absolute(q @ Q)
+        q_temp = q @ Q
+        dist = np.absolute(q) - np.absolute(q_temp)
         if (-e <= dist).all() and (dist <= e).all():
+        # if (np.absolute(dist) <= e).all():
             break
-        q = q @ Q
+        q = q_temp
     return a, q
 
 
@@ -128,10 +124,10 @@ def eigengap_heuristic(eigenvals_array, n):
                n- number of samples
        return: k- argmax(delta_i) when i from 0...n/2-1
        """
-    i=int(np.ceil(n/2)) #celling(n/2)
-    gaps = np.abs(eigenvals_array[1:i+1] - eigenvals_array[:i])
+    i = int(np.ceil(n / 2))  # celling(n/2)
+    gaps = np.abs(eigenvals_array[1:i + 1] - eigenvals_array[:i])
     k = np.argmax(gaps)  # returns the smallest index in case of equility
-    return k+1
+    return k + 1
 
 
 def create_t_matrix(U, n):
@@ -140,12 +136,7 @@ def create_t_matrix(U, n):
 
     :return:
     """
-    # print(U)
-    # print((np.power(np.sum(np.power(U, 2), axis=1), 0.5)).reshape(n, 1))
-    return U/(np.power(np.sum(np.power(U, 2), axis=1), 0.5)).reshape(n, 1)
-
-
-
+    return U / (np.power(np.sum(np.power(U, 2), axis=1), 0.5)).reshape(n, 1)
 
 
 # A = np.asarray([[2, -1, 0], [-1, 2, -1], [0, -1, 2]], dtype='float64')
@@ -159,7 +150,7 @@ def create_t_matrix(U, n):
 # print("***************")
 # print("R\n",R)
 # print("**************")
-# print("Q.T @ Q\n",Q.T @ Q)
+# I=Q.T @ Q
 # print("**************")
 # print("Q @ R\n",Q @ R)
 # print("**************")
@@ -178,7 +169,9 @@ def create_t_matrix(U, n):
 
 # print(eigengap_heuristic(np.asarray([1, 2, 3, 4, 5, 6, 7, 8]), 8))
 
-#
-# samples, header = make_blobs(n_samples=7, centers=3, n_features=3,
-#                       random_state=0)
-# spectral_clustering(samples, 7)
+# #
+# samples, header = make_blobs(n_samples=10, centers=4, n_features=3,
+#                              random_state=0)
+# # # print(type(samples[0][0]))
+# spectral_clustering(samples, 10, None)
+# #

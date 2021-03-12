@@ -1,10 +1,8 @@
 import argparse
 import random
 
-from sklearn.datasets import make_blobs
 from normalized_spectral_clustering import s_clustring
 from k_means import kmeans
-import matplotlib.pyplot as plt
 from sklearn.datasets import make_blobs
 import export_data
 
@@ -36,6 +34,7 @@ def handle_samples(user_k, user_n, is_random):
 
     return samples, header, k, n, dimension_number
 
+
 if __name__ == '__main__':
     """
         • k - number of clusters
@@ -46,7 +45,7 @@ if __name__ == '__main__':
     my_parser = argparse.ArgumentParser()
     my_parser.add_argument('k', action='store', type=int)
     my_parser.add_argument('n', action='store', type=int)
-    my_parser.add_argument('Random', action='store', type=bool)
+    my_parser.add_argument('--Random',default=True, action='store_false', help='Bool type')
 
     args = my_parser.parse_args()
     if args.k <= 0 or args.n <= 0:
@@ -60,13 +59,18 @@ if __name__ == '__main__':
     # Generate data for the algorithms
     samples, header, k_generated, n, d = handle_samples(args.k, args.n, args.Random)
 
+
     # Execute Normalized Spectral Clustering Comparison
-    spectral_data, k_used = s_clustring.spectral_clustering(samples, n)
-    spectral_clusters=kmeans.k_mean(k_used, n, k_used, MAX_ITER, spectral_data)
+    if args.Random:
+        # k is determine by the eigengap_heuristic
+        spectral_data, k_used = s_clustring.spectral_clustering(samples, n, None)
+    else:
+        # use the users k, which is equal to k_generated
+        spectral_data, k_used = s_clustring.spectral_clustering(samples, n, k_generated)
+    spectral_clusters = kmeans.k_mean(k_used, n, k_used, MAX_ITER, spectral_data)
 
     # Execute K-means algorithm
-    kmeans_clusters=kmeans.k_mean(k_used, n, d , MAX_ITER, samples)
+    kmeans_clusters = kmeans.k_mean(k_used, n, d, MAX_ITER, samples)
+
     # Export data
-    export_data.create_pdf_file(samples, header,kmeans_clusters, spectral_clusters,k_generated,k_used,n)
-
-
+    export_data.create_pdf_file(samples, header, kmeans_clusters, spectral_clusters, k_generated, k_used, n)

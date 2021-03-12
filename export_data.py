@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
 from sklearn.datasets import make_blobs
+
 
 
 def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_generated, k_used, n):
@@ -17,11 +17,11 @@ def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_gener
     """
     dimension_number = len(samples[0])
     projection = '3d' if dimension_number == 3 else None
-    fig = plt.figure(dpi = 500)
+    fig = plt.figure(dpi=500)
     ax1 = fig.add_subplot(121, projection=projection)
-    sctt1=plot(dimension_number, samples, clusters_kmeans, ax1, "k_means")
+    sctt1 = plot(dimension_number, samples, clusters_kmeans, ax1, "k_means")
     ax2 = fig.add_subplot(122, projection=projection)
-    sctt2=plot(dimension_number, samples, clusters_spectral, ax2, "Normalized Spectral")
+    sctt2 = plot(dimension_number, samples, clusters_spectral, ax2, "Normalized Spectral")
     j_k, j_s = jaccard_measure(clusters_kmeans, clusters_spectral, header)
     fig.text(0.5, -0.2, s=set_text(n, k_generated, k_used, j_k, j_s), fontsize=14, ha='center')
     plt.show()
@@ -68,13 +68,23 @@ def jaccard_measure(clusters_kmeans, clusters_spectral, origin_header):
                         clusters_kmeans[i] == clusters_kmeans[j]])
     spectral_pairs = set([(i, j) for i in range(len(clusters_spectral)) for j in range(i + 1, len(clusters_spectral)) if
                           clusters_spectral[i] == clusters_spectral[j]])
-    j_kmeans = float(len(header_pairs.intersection(kmeans_pairs)) / len(header_pairs.union(kmeans_pairs)))
-    j_spectral = float(len(header_pairs.intersection(spectral_pairs)) / len(header_pairs.union(spectral_pairs)))
+    j_kmeans=calculate_j(header_pairs, kmeans_pairs)
+    j_spectral=calculate_j(header_pairs, spectral_pairs)
+    # j_kmeans = float(len(header_pairs.intersection(kmeans_pairs)) / len(header_pairs.union(kmeans_pairs)))
+    # j_spectral = float(len(header_pairs.intersection(spectral_pairs)) / len(header_pairs.union(spectral_pairs)))
     return j_kmeans, j_spectral
-#
+
+def calculate_j(set_1, set_2):
+    intersect = 0
+    for pair in set_1:
+        if pair in set_2:
+            intersect += 1
+    return intersect / (len(set_1) + len(set_2) - intersect)
+
+
 # samples, header = make_blobs(n_samples=7, centers=3, n_features=2,
 #                       random_state=0)
-# # # print(header)
-# # k,s=jaccard_measure([1,1,2,2,0,0,1], [1,1,0,2,2,0,1], header)
-# # # print(k, s)
-# create_pdf_file(samples, header, [1,1,2,2,0,0,1], [1,1,0,2,2,0,1] ,3, 3, 7)
+# # # # # print(header)
+# k,s=jaccard_measure([1,1,2,2,0,1,1], [1,1,0,2,2,0,1], header)
+# # # # # print(k, s)
+# # # create_pdf_file(samples, header, [1,1,2,2,0,0,1], [1,1,0,2,2,0,1] ,3, 3, 7)
