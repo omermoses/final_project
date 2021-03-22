@@ -2,6 +2,7 @@ import argparse
 import random
 
 from normalized_spectral_clustering import s_clustring
+
 from k_means import kmeans
 from sklearn.datasets import make_blobs
 import export_data
@@ -68,6 +69,7 @@ if __name__ == '__main__':
         # use the users k, which is equal to k_generated
         spectral_data, k_used = s_clustring.spectral_clustering(samples, n, k_generated)
     spectral_clusters = kmeans.k_mean(k_used, n, k_used, MAX_ITER, spectral_data)
+
 
     # Execute K-means algorithm
     kmeans_clusters = kmeans.k_mean(k_used, n, d, MAX_ITER, samples)
