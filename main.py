@@ -1,5 +1,6 @@
 import argparse
 import random
+import time
 
 from normalized_spectral_clustering import s_clustring
 
@@ -54,7 +55,7 @@ if __name__ == '__main__':
         • n - number of data points
         • Random - indicates the way the data is to be generated
     """
-
+    start = time.time()  ####
     my_parser = argparse.ArgumentParser()
     my_parser.add_argument('k', action='store', type=int)
     my_parser.add_argument('n', action='store', type=int)
@@ -81,3 +82,5 @@ if __name__ == '__main__':
 
     # Export data
     export_data.create_pdf_file(samples, header, kmeans_clusters, spectral_clusters, k_generated, k_used, n)
+    end = time.time()  ####
+    print("--- %s seconds ---" % (end - start))  ####
