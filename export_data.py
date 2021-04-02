@@ -55,7 +55,7 @@ def plot(dimension_number, samples, clusters, ax, title):
 
 def set_text(n, k_generate, k_used, j_kmeans, j_spectral):
     """ set plots description text """
-    text = "Data was generated from the values:\n" + "n = " + str(n) + ", k =" + str(k_generate) + "\n"
+    text = "Data was generated from the values:\n" + "n = " + str(n) + ", k = " + str(k_generate) + "\n"
     text += "The k that was used for both algorithms was " + str(k_used) + "\n"
     text += "The Jaccard measure for Spectral Clustering: " + str("{:.2f}".format(j_spectral)) + "\n"
     text += "The Jaccard measure for K-means: " + str("{:.2f}".format(j_kmeans))
@@ -124,9 +124,10 @@ def write_clusters(clusters_kmeans, clusters_spectral, k_generated, k_used):
     file.close()
 
 
-samples, header = make_blobs(n_samples=7, centers=3, n_features=2,
-                       random_state=0)
-# # # # # print(header)
-# k,s=jaccard_measure([1,1,2,2,0,1,1], [1,1,0,2,2,0,1], header)
-# # # # # print(k, s)
-create_pdf_file(samples, header, [1,1,2,2,0,0,1], [1,1,0,2,2,0,1] ,3, 3, 7)
+# samples, header = make_blobs(n_samples=7, centers=3, n_features=2,
+#                        random_state=0)
+# # # # # # print(header)
+# # k,s=jaccard_measure([1,1,2,2,0,1,1], [1,1,0,2,2,0,1], header)
+# # # # # # print(k, s)
+# create_pdf_file(samples, header, [1,1,2,2,0,0,1], [1,1,0,2,2,0,1] ,3, 3, 7)
+
