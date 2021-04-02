@@ -27,8 +27,20 @@ def handle_samples(user_k, user_n, is_random):
         k = random.randint(K_MAXIMUM_CAPACITY // 2, K_MAXIMUM_CAPACITY)
         n = random.randint(N_MAXIMUM_CAPACITY // 2, N_MAXIMUM_CAPACITY)
     else:
+        #Random==False so we use the k,n of the user
         k = user_k
         n = user_n
+        if k <= 0 or n <= 0:
+            # if the user didn't entered values for k/n, the default is -1 and it's an error
+            # if the users k/n is <=0 it's an error
+            # print("parameters should be greater then 0")
+            print("parameters are missing or incorrect")
+            exit(1)
+
+        elif k >= n:
+            print("K should be smaller then N")
+            exit(1)
+
 
     samples, header = make_blobs(n_samples=n, centers=k, n_features=dimension_number,
                                  random_state=0)
@@ -44,18 +56,11 @@ if __name__ == '__main__':
     """
 
     my_parser = argparse.ArgumentParser()
-    my_parser.add_argument('k', action='store', type=int, required=False)
-    my_parser.add_argument('n', action='store', type=int, required=False)
+    my_parser.add_argument('k', action='store', type=int)
+    my_parser.add_argument('n', action='store', type=int)
     my_parser.add_argument('--Random', default=True, action='store_false', help='Bool type')
 
     args = my_parser.parse_args()
-    if args.k <= 0 or args.n <= 0:
-        print("parameters should be greater then 0")
-        exit(1)
-
-    elif args.k >= args.n:
-        print("K should be smaller then N")
-        exit(1)
 
     # Generate data for the algorithms
     samples, header, k_generated, n, d = handle_samples(args.k, args.n, args.Random)

@@ -2,7 +2,6 @@ import numpy as np
 from sklearn.datasets import make_blobs
 
 
-
 def spectral_clustering(data, n, k):
     # Calculate weighted adjacency matrix
     W = create_weighted_adjacency_matrix(data, n)
@@ -40,12 +39,11 @@ def create_weighted_adjacency_matrix(data, n):
     """
     W = np.zeros((n, n), order='F')
     for j in range(n):
-        col = data - data[j, :]
-        col = np.linalg.norm(col, 2, axis=1)
+        col = np.linalg.norm(data - data[j, :], 2, axis=1)
         col = np.exp(-col / 2)
         W[:, j] = col
     # np.fill_diagonal(W, val=0.0)  # zero out the diagonal
-    np.einsum('ii->i', W)[:] = 0 # zero out the diagonal
+    np.einsum('ii->i', W)[:] = 0  # zero out the diagonal
     return W
 
 
@@ -58,20 +56,20 @@ def calculate_L_norm(W, n):
 
     """
     I = np.identity(n, dtype='float64')
-    D_times_half = np.diag(np.power(W.sum(axis=1, dtype='float64'), -0.5))
+    D_times_half = np.diag(np.power(np.sum(W, axis=1, dtype='float64'), -0.5))
     # return I - (np.matmul(np.matmul(D_times_half, W), D_times_half))
     return I - np.einsum('ij,jk', np.einsum('ij,jk', D_times_half, W), D_times_half)
 
 
-def create_diagonal_degree_matrix(wighted_matrix):
-    """
-    create D
-    params: wighted matrix
-            n- number of samples
-        return: D - diagonal degree matrix
-
-    """
-    return np.diag(wighted_matrix.sum(axis=1, dtype='float64'))
+# def create_diagonal_degree_matrix(wighted_matrix):
+#     """
+#     create D
+#     params: wighted matrix
+#             n- number of samples
+#         return: D - diagonal degree matrix
+#
+#     """
+#     return np.diag(np.sum(wighted_matrix, axis=1, dtype='float64'))
 
 
 # def gram_schmidt(A, n):
@@ -99,7 +97,6 @@ def create_diagonal_degree_matrix(wighted_matrix):
 #     return Q, R
 
 
-
 def gram_schmidt(A, n):
     """
         improved
@@ -108,17 +105,20 @@ def gram_schmidt(A, n):
     Q = np.zeros((n, n), order='F')
     R = np.zeros((n, n))
     for i in range(n):
-        Ui = U[:, i]
-        norm = np.linalg.norm(Ui, 2)  # L2 norm
+        U_i = U[:, i]
+        norm = np.linalg.norm(U_i, 2)  # L2 norm
         R[i, i] = norm
         # raise an error??
         if norm == 0:  # avoid dividing by 0
-            Qi = Q[:, i] = np.zeros(n)
+            Q_i = Q[:, i] = np.zeros(n)
         else:
-            Qi = Q[:, i] = Ui / norm
-        # Qi = Q[:, i]
-        R[i, i + 1:n] = np.einsum('i,ij->j', Qi, U[:, i + 1:n])
-        U[:, i + 1:n] -= np.einsum('i,j->ji', R[i, i + 1:n], Qi)
+            Q_i = Q[:, i] = U_i / norm
+        # U_j_cols = U[:, i + 1:n]
+        R[i, i + 1:n] = np.einsum('i,ij->j', Q_i, U[:, i + 1:n])
+        # R[i, i + 1:n] = R_row_i = np.einsum('i,ij->j', Q_i, U_j_cols)
+        U[:, i + 1:n] -= np.einsum('i,j->ji', R[i, i + 1:n], Q_i)
+        # U[:, i + 1:n] = U_j_cols - np.einsum('i,j->ji', R_row_i, Q_i)
+
     return Q, R
 
 
@@ -137,9 +137,9 @@ def qr_algorithm(A, n):
     q = np.identity(n, dtype=np.float64)
     for i in range(n):
         Q, R = gram_schmidt(a, n)
-        a=np.einsum('ij,jk', R, Q)
+        a = np.einsum('ij,jk', R, Q)
         # a = R @ Q
-        q_temp=np.einsum('ij,jk', q, Q)
+        q_temp = np.einsum('ij,jk', q, Q)
         # q_temp = q @ Q
         dist = np.absolute(q) - np.absolute(q_temp)
         # if (-e <= dist).all() and (dist <= e).all():
@@ -147,7 +147,6 @@ def qr_algorithm(A, n):
             break
         q = q_temp
     return a, q
-
 
 
 def eigengap_heuristic(eigenvals_array, n):
@@ -275,15 +274,21 @@ def create_t_matrix(U, n):
 #
 #
 # def test():
-#     data = np.array([[4, 9], [2, 6]])
-#     n = 2
-#     # data, header = make_blobs(n_samples=n, centers=4, n_features=3,
-#     #                                                           random_state=0)
+#     # data = np.array([[4, 9], [2, 6]])
+#     n = 10
+#     data, header = make_blobs(n_samples=n, centers=4, n_features=3,
+#                                                               random_state=0)
 #     data_points = data
 #     weighted_adjacency_matrix = create_weighted_adjacency_matrix(data_points, n)
 #     # diagonal_degree_matrix = create_diagonal_degree_mat(weighted_adjacency_matrix)
 #     L_norm = calculate_L_norm(weighted_adjacency_matrix, n)
 #     A_bar, Q_bar = qr_algorithm(L_norm, n)
+#     sorted_eigenvalues_index = np.argsort(np.diagonal(A_bar))
+#     sorted_eigenvalues = np.diagonal(A_bar)[sorted_eigenvalues_index]
+#     sorted_eigenvectors = Q_bar[:, sorted_eigenvalues_index]
+#
+#
+#     k = eigengap_heuristic(sorted_eigenvalues, n)  # (int)
 #     w, v = np.linalg.eig(L_norm)
 #     print(f"my eig are {np.diag(A_bar)}\n")
 #     print(f"np eig are {w}\n")
