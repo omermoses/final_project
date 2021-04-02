@@ -1,6 +1,8 @@
-from collections import defaultdict
 import matplotlib.pyplot as plt
+import numpy as np
+from collections import defaultdict
 from sklearn.datasets import make_blobs
+
 
 
 def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_generated, k_used, n):
@@ -93,35 +95,12 @@ def calculate_j(set_1, set_2):
 
 def write_clusters(clusters_kmeans, clusters_spectral, k_generated, k_used):
 
-    kmenas_dict = defaultdict(list)
-    spectral_dict = defaultdict(list)
-
-    for i in range(len(clusters_kmeans)):
-        kmenas_dict[clusters_kmeans[i]].append(i)
-        spectral_dict[clusters_spectral[i]].append(i)
-
-    file = open("clusters.txt", "a")
-
-    file.write(str(k_used) + "\n")
-    for val in range(k_used):
-        size = len(kmenas_dict[val])
-        for num, k in enumerate(kmenas_dict[val]):
-            if num < size - 1:
-                file.write(str(k) + ',')
-            else:
-                file.write(str(k))
-        file.write("\n")
-
-    for val in range(k_used):
-        size = len(spectral_dict[val])
-        for num, k in enumerate(spectral_dict[val]):
-            if num < size - 1:
-                file.write(str(k)+',')
-            else:
-                file.write(str(k))
-        file.write("\n")
-
-    file.close()
+    with open("clusters.txt", 'w') as file:
+        file.write(str(k_used) + '\n')
+        for i in range(k_used):
+            file.write(','.join(map(str, np.argwhere(clusters_spectral == i).flatten())) + '\n')
+        for i in range(k_used):
+            file.write(','.join(map(str, np.argwhere(clusters_kmeans == i).flatten())) + '\n')
 
 
 # samples, header = make_blobs(n_samples=7, centers=3, n_features=2,
@@ -130,4 +109,3 @@ def write_clusters(clusters_kmeans, clusters_spectral, k_generated, k_used):
 # # k,s=jaccard_measure([1,1,2,2,0,1,1], [1,1,0,2,2,0,1], header)
 # # # # # # print(k, s)
 # create_pdf_file(samples, header, [1,1,2,2,0,0,1], [1,1,0,2,2,0,1] ,3, 3, 7)
-
