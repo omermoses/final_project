@@ -42,8 +42,8 @@ def create_weighted_adjacency_matrix(data, n):
         col = np.linalg.norm(data - data[j, :], 2, axis=1)
         col = np.exp(-col / 2)
         W[:, j] = col
-    # np.fill_diagonal(W, val=0.0)  # zero out the diagonal
-    np.einsum('ii->i', W)[:] = 0  # zero out the diagonal
+    np.fill_diagonal(W, val=0.0)  # zero out the diagonal
+    # np.einsum('ii->i', W)[:] = 0  # zero out the diagonal
     return W
 
 
@@ -57,8 +57,8 @@ def calculate_L_norm(W, n):
     """
     I = np.identity(n, dtype='float64')
     D_times_half = np.diag(np.power(np.sum(W, axis=1, dtype='float64'), -0.5))
-    # return I - (np.matmul(np.matmul(D_times_half, W), D_times_half))
-    return I - np.einsum('ij,jk', np.einsum('ij,jk', D_times_half, W), D_times_half)
+    return I - (np.matmul(np.matmul(D_times_half, W), D_times_half))
+    # return I - np.einsum('ij,jk', np.einsum('ij,jk', D_times_half, W), D_times_half)
 
 
 # def create_diagonal_degree_matrix(wighted_matrix):
@@ -137,10 +137,10 @@ def qr_algorithm(A, n):
     q = np.identity(n, dtype=np.float64)
     for i in range(n):
         Q, R = gram_schmidt(a, n)
-        a = np.einsum('ij,jk', R, Q)
-        # a = R @ Q
-        q_temp = np.einsum('ij,jk', q, Q)
-        # q_temp = q @ Q
+        # a = np.einsum('ij,jk', R, Q)
+        a = R @ Q
+        # q_temp = np.einsum('ij,jk', q, Q)
+        q_temp = q @ Q
         dist = np.absolute(q) - np.absolute(q_temp)
         # if (-e <= dist).all() and (dist <= e).all():
         if (np.absolute(dist) <= e).all():
@@ -171,7 +171,7 @@ def create_t_matrix(U, n):
     return U / (np.power(np.sum(np.power(U, 2), axis=1), 0.5)).reshape(n, 1)
 
 
-"""tests"""
+# """tests"""
 
 # A = np.asarray([[2, -1, 0], [-1, 2, -1], [0, -1, 2]], dtype='float64')
 # A = sklearn.datasets.make_spd_matrix(10)
