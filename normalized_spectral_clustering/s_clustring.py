@@ -37,7 +37,9 @@ def create_weighted_adjacency_matrix(data, n):
         return: W- weighted_adjacency_matrix
 
     """
-    W = np.zeros((n, n), order='F')
+    # W = np.zeros((n, n), order='F')
+    W = np.zeros((n, n))
+
     for j in range(n):
         col = np.linalg.norm(data - data[j, :], 2, axis=1)
         col = np.exp(-col / 2)
@@ -55,10 +57,11 @@ def calculate_L_norm(W, n):
         return: LN - The normalized L
 
     """
-    I = np.identity(n, dtype='float64')
-    D_times_half = np.diag(np.power(np.sum(W, axis=1, dtype='float64'), -0.5))
-    return I - (np.matmul(np.matmul(D_times_half, W), D_times_half))
-    # return I - np.einsum('ij,jk', np.einsum('ij,jk', D_times_half, W), D_times_half)
+    # I = np.identity(n, dtype='float64')
+    # D_times_half = np.diag(np.power(np.sum(W, axis=1, dtype='float64'), -0.5))
+    D_times_half = np.diag(np.power(np.einsum('ij->i', W), -0.5))
+    return np.identity(n, dtype='float64') - (np.matmul(np.matmul(D_times_half, W), D_times_half))
+    # return np.identity(n, dtype='float64') - np.einsum('ij,jk', np.einsum('ij,jk', D_times_half, W), D_times_half)
 
 
 # def create_diagonal_degree_matrix(wighted_matrix):
@@ -101,8 +104,10 @@ def gram_schmidt(A, n):
     """
         improved
     """
-    U = A.copy(order='F')
-    Q = np.zeros((n, n), order='F')
+    # U = A.copy(order='F')
+    # Q = np.zeros((n, n), order='F')
+    U = A.copy()
+    Q = np.zeros((n, n))
     R = np.zeros((n, n))
     for i in range(n):
         U_i = U[:, i]
@@ -169,7 +174,6 @@ def create_t_matrix(U, n):
     :return:
     """
     return U / (np.power(np.sum(np.power(U, 2), axis=1), 0.5)).reshape(n, 1)
-
 
 # """tests"""
 
@@ -286,6 +290,11 @@ def create_t_matrix(U, n):
 #     sorted_eigenvalues_index = np.argsort(np.diagonal(A_bar))
 #     sorted_eigenvalues = np.diagonal(A_bar)[sorted_eigenvalues_index]
 #     sorted_eigenvectors = Q_bar[:, sorted_eigenvalues_index]
+#     # Create U
+#     sorted_eigenvectors = sorted_eigenvectors[:, :4]
+#
+#     # Creat T matrix
+#     T = create_t_matrix(sorted_eigenvectors, n)
 #
 #
 #     k = eigengap_heuristic(sorted_eigenvalues, n)  # (int)

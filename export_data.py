@@ -7,7 +7,7 @@ from sklearn.datasets import make_blobs
 
 def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_generated, k_used, n):
     """
-    create visualization output
+    create visualization output and cluster+data pdfs
     params: samples, header- data from make_bolbs
             clusters_kmeans- for sample i, clusters_kmeans[i]==the cluster that sample i belongs,
                             to according to kmeans
@@ -15,28 +15,34 @@ def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_gener
             k_generated- the k that we used to generate the data with make_bolbs
             k_used- the k that we used to cluster with kmeans++ and spectral
             n- n umber of samples
-    return- PDF file with the plots and some data
+    return- PDF file with the plots and some data, pdf for clustera and pdf for data
     """
+
+    ###plots
     dimension_number = len(samples[0])
     projection = '3d' if dimension_number == 3 else None
     fig = plt.figure(dpi=500)
     ax1 = fig.add_subplot(121, projection=projection)
-    sctt1 = plot(dimension_number, samples, clusters_kmeans, ax1, "k_means")
+    sctt1 = plot(dimension_number, samples, clusters_spectral, ax1, "Normalized Spectral")
     ax2 = fig.add_subplot(122, projection=projection)
-    sctt2 = plot(dimension_number, samples, clusters_spectral, ax2, "Normalized Spectral")
+    sctt2 = plot(dimension_number, samples, clusters_kmeans, ax2, "k_means")
     j_k, j_s = jaccard_measure(clusters_kmeans, clusters_spectral, header)
     fig.text(0.5, -0.2, s=set_text(n, k_generated, k_used, j_k, j_s), fontsize=14, ha='center')
-    # write_clusters(clusters_kmeans, clusters_spectral, k_generated, k_used)
     plt.show()
     fig.savefig(r'Charts.pdf', bbox_inches='tight')
 
-    # for tests
-    fig_1 = plt.figure(dpi=500)
-    ax3 = fig_1.add_subplot(121, projection=projection)
-    sctt3 = plot(dimension_number, samples, header, ax3, "make blobs")
-    plt.show()
-    fig_1.savefig(r'make_blobs.pdf', bbox_inches='tight')
+    # # for tests
+    # fig_1 = plt.figure(dpi=500)
+    # ax3 = fig_1.add_subplot(121, projection=projection)
+    # sctt3 = plot(dimension_number, samples, header, ax3, "make blobs")
+    # plt.show()
+    # fig_1.savefig(r'make_blobs.pdf', bbox_inches='tight')
 
+    ###clusters pdf
+    write_clusters(clusters_kmeans, clusters_spectral, k_generated, k_used)
+
+    ###data pdf
+    or_outputData(samples, header, n)
 
 
 def plot(dimension_number, samples, clusters, ax, title):
@@ -101,6 +107,12 @@ def write_clusters(clusters_kmeans, clusters_spectral, k_generated, k_used):
             file.write(','.join(map(str, np.argwhere(clusters_spectral == i).flatten())) + '\n')
         for i in range(k_used):
             file.write(','.join(map(str, np.argwhere(clusters_kmeans == i).flatten())) + '\n')
+
+
+def or_outputData(observations, clusters, n):
+    with open("data.txt", 'w') as out:
+        for i in range(n):
+            out.write(','.join(map(str, observations[i])) + ',' + str(clusters[i]) + '\n')
 
 
 # samples, header = make_blobs(n_samples=7, centers=3, n_features=2,

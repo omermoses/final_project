@@ -2,6 +2,8 @@ import argparse
 import random
 import time
 
+import pandas as pd
+
 from normalized_spectral_clustering import s_clustring
 
 from k_means import kmeans
@@ -62,11 +64,23 @@ if __name__ == '__main__':
     my_parser.add_argument('n', action='store', type=int)
     my_parser.add_argument('--Random', default=True, action='store_false', help='Bool type')
 
+    ###for test
+    # my_parser.add_argument('filename', action='store', type=str)
+
+
     args = my_parser.parse_args()
 
     # Generate data for the algorithms
     samples, header, k_generated, n, d = handle_samples(args.k, args.n, args.Random)
 
+
+    # ####for tests
+    # ndarr=pd.read_csv(args.filename, sep=',',header=None).to_numpy()
+    # samples=ndarr[:,:-1]
+    # header=ndarr[:,-1]
+    # d=3
+    # k_generated=args.k
+    # n=args.n
 
     # Execute Normalized Spectral Clustering Comparison
     if args.Random:
