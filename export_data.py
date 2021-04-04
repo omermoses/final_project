@@ -26,16 +26,16 @@ def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_gener
     sctt2 = plot(dimension_number, samples, clusters_spectral, ax2, "Normalized Spectral")
     j_k, j_s = jaccard_measure(clusters_kmeans, clusters_spectral, header)
     fig.text(0.5, -0.2, s=set_text(n, k_generated, k_used, j_k, j_s), fontsize=14, ha='center')
-    write_clusters(clusters_kmeans, clusters_spectral, k_generated, k_used)
+    # write_clusters(clusters_kmeans, clusters_spectral, k_generated, k_used)
     plt.show()
     fig.savefig(r'Charts.pdf', bbox_inches='tight')
 
-    # # for tests
-    # fig_1 = plt.figure(dpi=500)
-    # ax3 = fig_1.add_subplot(121, projection=projection)
-    # sctt3 = plot(dimension_number, samples, header, ax3, "make blobs")
-    # plt.show()
-    # fig_1.savefig(r'make_blobs.pdf', bbox_inches='tight')
+    # for tests
+    fig_1 = plt.figure(dpi=500)
+    ax3 = fig_1.add_subplot(121, projection=projection)
+    sctt3 = plot(dimension_number, samples, header, ax3, "make blobs")
+    plt.show()
+    fig_1.savefig(r'make_blobs.pdf', bbox_inches='tight')
 
 
 

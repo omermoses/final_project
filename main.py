@@ -43,8 +43,8 @@ def handle_samples(user_k, user_n, is_random):
             exit(1)
 
 
-    samples, header = make_blobs(n_samples=n, centers=k, n_features=dimension_number,
-                                 random_state=0)
+    samples, header = make_blobs(n_samples=n, centers=k, n_features=dimension_number)#,
+                               #  random_state=0)
 
     return samples, header, k, n, dimension_number
 
@@ -56,6 +56,7 @@ if __name__ == '__main__':
         • Random - indicates the way the data is to be generated
     """
     start = time.time()  ####
+
     my_parser = argparse.ArgumentParser()
     my_parser.add_argument('k', action='store', type=int)
     my_parser.add_argument('n', action='store', type=int)
@@ -84,3 +85,4 @@ if __name__ == '__main__':
     export_data.create_pdf_file(samples, header, kmeans_clusters, spectral_clusters, k_generated, k_used, n)
     end = time.time()  ####
     print("--- %s seconds ---" % (end - start))  ####
+
