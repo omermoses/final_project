@@ -1,6 +1,9 @@
 import numpy as np
 from sklearn.datasets import make_blobs
 
+EPS = 0.0001
+
+
 
 def spectral_clustering(data, n, k):
     # Calculate weighted adjacency matrix
@@ -63,25 +66,9 @@ def calculate_L_norm(W, n):
     return np.identity(n, dtype='float64') - (np.matmul(np.matmul(D_times_half, W), D_times_half))
     # return np.identity(n, dtype='float64') - np.einsum('ij,jk', np.einsum('ij,jk', D_times_half, W), D_times_half)
 
-
-# def create_diagonal_degree_matrix(wighted_matrix):
-#     """
-#     create D
-#     params: wighted matrix
-#             n- number of samples
-#         return: D - diagonal degree matrix
-#
-#     """
-#     return np.diag(np.sum(wighted_matrix, axis=1, dtype='float64'))
-
-
 # def gram_schmidt(A, n):
 #     """
-#         calculate Modified Gram Schmidt
-#         params: A- ndarray of size nXn with dtype='float64'
-#                 n- A dim
-#         return: Q- orthogonal matrix
-#                 R- diagonal matrix
+#         old
 #     """
 #
 #     U = A.copy(order='F')
@@ -102,8 +89,12 @@ def calculate_L_norm(W, n):
 
 def gram_schmidt(A, n):
     """
-        improved
-    """
+            calculate Modified Gram Schmidt
+            params: A- ndarray of size nXn with dtype='float64'
+                    n- A dim
+            return: Q- orthogonal matrix
+                    R- diagonal matrix
+        """
     # U = A.copy(order='F')
     # Q = np.zeros((n, n), order='F')
     U = A.copy()
@@ -137,7 +128,6 @@ def qr_algorithm(A, n):
             q- eigenvectors as columns
 
     """
-    e = 0.0001
     a = A
     q = np.identity(n, dtype=np.float64)
     for i in range(n):
@@ -148,7 +138,7 @@ def qr_algorithm(A, n):
         q_temp = q @ Q
         dist = np.absolute(q) - np.absolute(q_temp)
         # if (-e <= dist).all() and (dist <= e).all():
-        if (np.absolute(dist) <= e).all():
+        if (np.absolute(dist) <= EPS).all():
             break
         q = q_temp
     return a, q
@@ -166,7 +156,6 @@ def eigengap_heuristic(eigenvals_array, n):
     k = np.argmax(gaps)  # returns the smallest index in case of equility
     return k + 1
 
-
 def create_t_matrix(U, n):
     """
     Form matrix T from U by renormalizing each of U’s rows to have unit length,
@@ -176,106 +165,6 @@ def create_t_matrix(U, n):
     return U / (np.power(np.sum(np.power(U, 2), axis=1), 0.5)).reshape(n, 1)
 
 # """tests"""
-
-# A = np.asarray([[2, -1, 0], [-1, 2, -1], [0, -1, 2]], dtype='float64')
-# A = sklearn.datasets.make_spd_matrix(10)
-# print("A\n" , A)
-# print("***************")
-# #
-# Y = np.array([[5, 3, 1, 4], [3, 6, 0, 2.5], [1, 0, 3, 1.7], [4, 2.5, 1.7, 10]])
-# Q, R ,U= gram_schmidt(Y, 4)
-# q,r,u =gram_schmidt_new(Y,4)
-
-
-# # print("Q\n", Q)
-# print("***************")
-# print("R\n",R)
-# print("**************")
-# I=Q.T @ Q
-# print("**************")
-# print("Q @ R\n",Q @ R)
-# print("**************")
-#
-# a, q = qr_algorithm(Y, 4)
-# print("a diagonal\n", np.diagonal(a))
-# print("*************")
-# print("q\n", q)
-# print(np.linalg.eig(Y))
-# sorted_eigenvalues_index=np.argsort(np.diagonal(a))
-# sorted_eigenvalues=np.diagonal(a)[sorted_eigenvalues_index]
-# sotred_eigenvectors=q[:,sorted_eigenvalues_index]
-# print(sorted_eigenvalues_index)
-# print(sorted_eigenvalues)
-# print(sotred_eigenvectors)
-
-# print(eigengap_heuristic(np.asarray([1, 2, 3, 4, 5, 6, 7, 8]), 8))
-
-# # #
-# samples, header = make_blobs(n_samples=15, centers=4, n_features=3,
-#                              random_state=0)
-# W=create_weighted_adjacency_matrix(samples, 15)
-# L=calculate_L_norm(W, 15)
-# # L=L.astype(np.float32)
-# #
-# Q,R=gram_schmidt(L,15)
-# # print("our Q")
-# #
-# # print(Q)
-# # print('*********')
-# # # q,r=gram_schmidt_new(L,7)
-# #
-# A,q = qr_algorithm(L, 15)
-# # # print(Q)
-# # # a,q=qr_algorithm_new(L,7)
-# # # print(q)
-# # #
-# sorted_eigenvalues_index = np.argsort(np.diagonal(A))
-# sorted_eigenvalues = np.diagonal(A)[sorted_eigenvalues_index]
-# sorted_eigenvectors = q[:, sorted_eigenvalues_index]
-# sorted_eigenvectors = sorted_eigenvectors[:, :4]
-# T = create_t_matrix(sorted_eigenvectors, 15)
-# #
-# # sorted_eigenvalues_index_new = np.argsort(np.diagonal(a))
-# # sorted_eigenvalues_new = np.diagonal(a)[sorted_eigenvalues_index_new]
-# # sorted_eigenvectors_new = q[:, sorted_eigenvalues_index_new]
-# # sorted_eigenvectors_new = sorted_eigenvectors_new[:, :4]
-# # t = create_t_matrix(sorted_eigenvectors_new, 15)
-# # print(Q)
-# # print("***************")
-# # print(R)
-# # print("***************")
-# #
-# # print(q)
-# # print("***************")
-# # print(r)
-# # print("*****")
-#
-# # print(q)
-# # print("**********")
-# # print(r)
-# # print("**********")
-# #
-# Q, R= np.linalg.qr(L)
-# print("np.linalg.qr")
-# print(Q)
-# print("**********")
-# # print(R)
-#
-# a, q = qr_algorithm(L, 15)
-# sorted_eigenvalues_index = np.argsort(np.diagonal(a))
-# sorted_eigenvalues = np.diagonal(a)[sorted_eigenvalues_index]
-# sorted_eigenvectors = q[:, sorted_eigenvalues_index]
-# print("a diagonal\n", sorted_eigenvalues)
-# # print("*************")
-# print("q\n", sorted_eigenvectors)
-# print('*******')
-# print(np.linalg.eig(L))
-
-
-# # # print(type(samples[0][0]))
-# spectral_clustering(samples, 10, None)
-# #
-#
 #
 # def test():
 #     # data = np.array([[4, 9], [2, 6]])
@@ -306,3 +195,31 @@ def create_t_matrix(U, n):
 #
 #
 # test()
+
+
+# def test_k_value(n, K, D,std):
+#     data_points, points_membership = make_blobs(n_samples=n, centers=K, n_features=D,cluster_std=std, center_box=(-3.0,3))
+#     weighted_adjacency_matrix = create_weighted_adjacency_matrix(data_points,n)
+#     # diagonal_degree_matrix = create_diagonal_degree_mat(weighted_adjacency_matrix)
+#     L_norm = calculate_L_norm(weighted_adjacency_matrix, n)
+#     A_bar, Q_bar = qr_algorithm(L_norm, n)
+#
+#     sorted_eigenvalues_index = np.argsort(np.diagonal(A_bar))
+#     sorted_eigenvalues = np.diagonal(A_bar)[sorted_eigenvalues_index]
+#     #
+#     #
+#     our_k = eigengap_heuristic(sorted_eigenvalues, n)  # (int)
+#     data_k = K
+#     return 1 if np.abs(our_k- data_k) <=1 else 0
+#
+# def test_k_correlation():
+#     num_of_eq = 0
+#     num_of_runs = 2
+#     std = 1
+#     for i in range(num_of_runs):
+#         n = np.random.randint(10,30)
+#         K = np.random.randint(3,20)
+#         num_of_eq+=test_k_value(n, K, 3,std)
+#     print(num_of_eq/num_of_runs)
+#
+# test_k_correlation()

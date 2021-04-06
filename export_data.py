@@ -27,7 +27,10 @@ def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_gener
     ax2 = fig.add_subplot(122, projection=projection)
     sctt2 = plot(dimension_number, samples, clusters_kmeans, ax2, "k_means")
     j_k, j_s = jaccard_measure(clusters_kmeans, clusters_spectral, header)
-    fig.text(0.5, -0.2, s=set_text(n, k_generated, k_used, j_k, j_s), fontsize=14, ha='center')
+    if dimension_number==2:
+        fig.text(0.5, -0.2, s=set_text(n, k_generated, k_used, j_k, j_s), fontsize=14, ha='center')
+    else:
+        fig.text(0.525, 0, s=set_text(n, k_generated, k_used, j_k, j_s), fontsize=14, ha='center')
     plt.show()
     fig.savefig(r'Charts.pdf', bbox_inches='tight')
 
@@ -39,10 +42,10 @@ def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_gener
     # fig_1.savefig(r'make_blobs.pdf', bbox_inches='tight')
 
     ###clusters pdf
-    write_clusters(clusters_kmeans, clusters_spectral, k_generated, k_used)
+    write_clusters(clusters_kmeans, clusters_spectral, k_used)
 
     ###data pdf
-    or_outputData(samples, header, n)
+    write_data(samples, header, n)
 
 
 def plot(dimension_number, samples, clusters, ax, title):
@@ -87,8 +90,6 @@ def jaccard_measure(clusters_kmeans, clusters_spectral, origin_header):
                           clusters_spectral[i] == clusters_spectral[j]])
     j_kmeans=calculate_j(header_pairs, kmeans_pairs)
     j_spectral=calculate_j(header_pairs, spectral_pairs)
-    # j_kmeans = float(len(header_pairs.intersection(kmeans_pairs)) / len(header_pairs.union(kmeans_pairs)))
-    # j_spectral = float(len(header_pairs.intersection(spectral_pairs)) / len(header_pairs.union(spectral_pairs)))
     return j_kmeans, j_spectral
 
 def calculate_j(set_1, set_2):
@@ -99,8 +100,7 @@ def calculate_j(set_1, set_2):
     return intersect / (len(set_1) + len(set_2) - intersect)
 
 
-def write_clusters(clusters_kmeans, clusters_spectral, k_generated, k_used):
-
+def write_clusters(clusters_kmeans, clusters_spectral ,k_used):
     with open("clusters.txt", 'w') as file:
         file.write(str(k_used) + '\n')
         for i in range(k_used):
@@ -109,15 +109,16 @@ def write_clusters(clusters_kmeans, clusters_spectral, k_generated, k_used):
             file.write(','.join(map(str, np.argwhere(clusters_kmeans == i).flatten())) + '\n')
 
 
-def or_outputData(observations, clusters, n):
-    with open("data.txt", 'w') as out:
+def write_data(observations, clusters, n):
+    with open("data.txt", 'w') as file:
         for i in range(n):
-            out.write(','.join(map(str, observations[i])) + ',' + str(clusters[i]) + '\n')
+            file.write(','.join(map(str, observations[i])) + ',' + str(clusters[i]) + '\n')
+
+        ###for kim
+            # file.write(','.join(map("{:.16f}".format, observations[i])) + ',' + str(clusters[i]) + '\n')
 
 
 # samples, header = make_blobs(n_samples=7, centers=3, n_features=2,
 #                        random_state=0)
-# # # # # # print(header)
-# # k,s=jaccard_measure([1,1,2,2,0,1,1], [1,1,0,2,2,0,1], header)
-# # # # # # print(k, s)
+#
 # create_pdf_file(samples, header, [1,1,2,2,0,0,1], [1,1,0,2,2,0,1] ,3, 3, 7)

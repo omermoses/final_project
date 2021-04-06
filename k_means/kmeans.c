@@ -4,6 +4,8 @@
 #include "stdlib.h"
 #include "stdio.h"
 
+#define EPS 0.0001
+
 char ERROR_MSG[]="Running Kmeans calculation using c module has failed";
 
 typedef struct Cluster {
@@ -284,7 +286,8 @@ static int update_centroid(Cluster **clusters_array, int k, int d){
         current_cluster= clusters_array[cluster_index];
         for (dpoint=0; dpoint<d; dpoint++){
             temp_calc = current_cluster->sum_of_obs[dpoint]/(float)current_cluster->size;
-            if (temp_calc != current_cluster->centroid[dpoint]) {
+//            if (temp_calc != current_cluster->centroid[dpoint]) {
+            if (temp_calc - current_cluster->centroid[dpoint] < EPS) {
                 /*check if the centroid in place dpoint should be updated*/
                 current_cluster->centroid[dpoint] = temp_calc;
                 is_changed = 1;
