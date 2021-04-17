@@ -112,10 +112,8 @@ def write_clusters(clusters_kmeans, clusters_spectral ,k_used):
 def write_data(observations, clusters, n):
     with open("data.txt", 'w') as file:
         for i in range(n):
-            file.write(','.join(map(str, observations[i])) + ',' + str(clusters[i]) + '\n')
-
-        ###for kim
-            # file.write(','.join(map("{:.16f}".format, observations[i])) + ',' + str(clusters[i]) + '\n')
+            # file.write(','.join(map(str, observations[i])) + ',' + str(clusters[i]) + '\n')
+            file.write(','.join(map("{:.8f}".format, observations[i])) + ',' + str(clusters[i]) + '\n')
 
 
 # samples, header = make_blobs(n_samples=7, centers=3, n_features=2,

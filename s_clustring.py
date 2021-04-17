@@ -4,7 +4,6 @@ from sklearn.datasets import make_blobs
 EPS = 0.0001
 
 
-
 def spectral_clustering(data, n, k):
     # Calculate weighted adjacency matrix
     W = create_weighted_adjacency_matrix(data, n)
@@ -40,7 +39,6 @@ def create_weighted_adjacency_matrix(data, n):
         return: W- weighted_adjacency_matrix
 
     """
-    # W = np.zeros((n, n), order='F')
     W = np.zeros((n, n))
 
     for j in range(n):
@@ -60,11 +58,10 @@ def calculate_L_norm(W, n):
         return: LN - The normalized L
 
     """
-    # I = np.identity(n, dtype='float64')
-    # D_times_half = np.diag(np.power(np.sum(W, axis=1, dtype='float64'), -0.5))
-    D_times_half = np.diag(np.power(np.einsum('ij->i', W), -0.5))
-    return np.identity(n, dtype='float64') - (np.matmul(np.matmul(D_times_half, W), D_times_half))
+    D_times_half = np.diag(np.power(np.sum(W, axis=1, dtype='float64'), -0.5))
+    return np.identity(n, dtype='float64') - (np.dot(np.dot(D_times_half, W), D_times_half))
     # return np.identity(n, dtype='float64') - np.einsum('ij,jk', np.einsum('ij,jk', D_times_half, W), D_times_half)
+
 
 # def gram_schmidt(A, n):
 #     """
@@ -95,8 +92,6 @@ def gram_schmidt(A, n):
             return: Q- orthogonal matrix
                     R- diagonal matrix
         """
-    # U = A.copy(order='F')
-    # Q = np.zeros((n, n), order='F')
     U = A.copy()
     Q = np.zeros((n, n))
     R = np.zeros((n, n))
@@ -132,11 +127,12 @@ def qr_algorithm(A, n):
     q = np.identity(n, dtype=np.float64)
     for i in range(n):
         Q, R = gram_schmidt(a, n)
-        # a = np.einsum('ij,jk', R, Q)
         a = R @ Q
-        # q_temp = np.einsum('ij,jk', q, Q)
+        # a = np.dot(R, Q)
         q_temp = q @ Q
+        # q_temp = np.dot(q, Q)
         dist = np.absolute(q) - np.absolute(q_temp)
+        # dist = np.subtract(np.absolute(q), np.absolute(q_temp))
         # if (-e <= dist).all() and (dist <= e).all():
         if (np.absolute(dist) <= EPS).all():
             break
@@ -155,6 +151,7 @@ def eigengap_heuristic(eigenvals_array, n):
     gaps = np.abs(eigenvals_array[1:i + 1] - eigenvals_array[:i])
     k = np.argmax(gaps)  # returns the smallest index in case of equility
     return k + 1
+
 
 def create_t_matrix(U, n):
     """

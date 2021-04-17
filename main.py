@@ -3,12 +3,13 @@ import random
 import time
 import numpy as np
 
-from normalized_spectral_clustering import s_clustring
+import s_clustring
 
-from k_means import kmeans
+import kmeans
 from sklearn.datasets import make_blobs
 import export_data
 
+#MAXIMUM_CAPACITY of 2/3 dim=[n,k]
 MAXIMUM_CAPACITY_2 = [530, 30]
 MAXIMUM_CAPACITY_3 = [520, 30]
 MAX_ITER = 300
@@ -22,7 +23,7 @@ def handle_samples(user_k, user_n, is_random):
         header - The integer labels for cluster membership of each sample (ndarray type)
     """
 
-    dimension_number =random.randint(2, 3)
+    dimension_number =2#random.randint(2, 3)
 
     if is_random:
         # The Random flag is true so we choose randomly k and n values
@@ -68,6 +69,10 @@ if __name__ == '__main__':
     # my_parser.add_argument('filename', action='store', type=str)
 
     args = my_parser.parse_args()
+
+    #print max capacity
+    print("Maximum capacity of 2 dimension points is N={} K={}".format(MAXIMUM_CAPACITY_2[0], MAXIMUM_CAPACITY_2[1]))
+    print("Maximum capacity of 3 dimension points is N={} K={}".format(MAXIMUM_CAPACITY_3[0], MAXIMUM_CAPACITY_3[1]))
 
     # Generate data for the algorithms
     samples, header, k_generated, n, d = handle_samples(args.k, args.n, args.Random)
