@@ -1,12 +1,10 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
-
+#include "kmeans.h" //include kmeans header
 #include "stdlib.h"
 #include "stdio.h"
 
 #define EPS 0.0001
-
-char ERROR_MSG[]="Running Kmeans calculation using c module has failed";
 
 typedef struct Cluster {
     int name, size;
@@ -19,17 +17,11 @@ typedef struct Observation {
     Cluster *cluster;
 } Observation;
 
-static PyObject* run (PyObject *self, PyObject *args);
-
-static void convert_index_to_c(PyObject *index, long* index_c);
-
-static PyObject* convert_cluster_to_py(long* obs_cluster_array, int n);
-
-static void create_clusters_array(long *obs_cluster_array, Observation **input_values, long* index, int n);
-
-static int kmeans(PyObject *observations, int k, int n, int d, int max_iter, long* index, long* obs_cluster_array);
+int kmeans(PyObject *observations, int k, int n, int d, int max_iter, long* index, long* obs_cluster_array);
 
 static void convert_obs(Observation **input_values, PyObject *observations, int N, int d);
+
+static void create_clusters_array(long *obs_cluster_array, Observation **input_values, long* index, int n);
 
 static void clean(Observation **observations, int n, Cluster **cluster_array, int k);
 
@@ -53,7 +45,7 @@ static int create_k_clusters(Observation **observations, Cluster **clusters_arra
 
 static void copy(const double *values, double *sum_of_obs, int d);
 
-static int kmeans(PyObject *observations, int k, int n, int d, int max_iter, long* index, long* obs_cluster_array) {
+int kmeans(PyObject *observations, int k, int n, int d, int max_iter, long* index, long* obs_cluster_array) {
     /*
     returns an array of n ints where arr[i]=cluster of obs i in the original data
     */
@@ -104,6 +96,34 @@ static int kmeans(PyObject *observations, int k, int n, int d, int max_iter, lon
     create_clusters_array(obs_cluster_array, input_values, index, n);
     clean(input_values, n, clusters_array, k);
     return 0;
+}
+
+static void convert_obs(Observation **input_values, PyObject *observations, int n, int d){
+    /*
+    * convert the PyObject type observations to arrys of type double
+    */
+    int i, j;
+    PyObject *obs, *val;
+    Py_ssize_t obs_num, obs_size;
+    obs_num= PyList_Size(observations);
+    for (i=0; i<obs_num; i++){
+        obs=PyList_GetItem(observations, i);
+        if (!PyList_Check(obs)){
+           PyErr_Format(PyExc_ValueError, ERROR_MSG);
+        }
+        obs_size=PyList_Size(obs);
+        for (j=0; j<obs_size; j++){
+            val=PyList_GetItem(obs, j);
+            if (!PyFloat_Check(val)){
+                PyErr_Format(PyExc_ValueError, ERROR_MSG);
+                }
+            input_values[i]->values[j]=PyFloat_AsDouble(val);
+            if (input_values[i]->values[j]== -1 && PyErr_Occurred()){
+            /* double too big to fit in a C float, bail out */
+                PyErr_Format(PyExc_ValueError, ERROR_MSG);
+            }
+        }
+    }
 }
 
 static void create_clusters_array(long *obs_cluster_array, Observation **input_values, long* index, int n){
@@ -157,35 +177,6 @@ static int init(Observation **observations, int n, int d) {
     }
     return 0;
 }
-
-static void convert_obs(Observation **input_values, PyObject *observations, int n, int d){
-    /*
-    * convert the PyObject type observations to arrys of type double
-    */
-    int i, j;
-    PyObject *obs, *val;
-    Py_ssize_t obs_num, obs_size;
-    obs_num= PyList_Size(observations);
-    for (i=0; i<obs_num; i++){
-        obs=PyList_GetItem(observations, i);
-        if (!PyList_Check(obs)){
-           PyErr_Format(PyExc_ValueError, ERROR_MSG);
-        }
-        obs_size=PyList_Size(obs);
-        for (j=0; j<obs_size; j++){
-            val=PyList_GetItem(obs, j);
-            if (!PyFloat_Check(val)){
-                PyErr_Format(PyExc_ValueError, ERROR_MSG);
-                }
-            input_values[i]->values[j]=PyFloat_AsDouble(val);
-            if (input_values[i]->values[j]== -1 && PyErr_Occurred()){
-            /* double too big to fit in a C float, bail out */
-                PyErr_Format(PyExc_ValueError, ERROR_MSG);
-            }
-        }
-    }
-}
-
 
 static void clean(Observation **observations, int n, Cluster **cluster_array, int k) {
     int i,j;
@@ -287,7 +278,7 @@ static int update_centroid(Cluster **clusters_array, int k, int d){
         for (dpoint=0; dpoint<d; dpoint++){
             temp_calc = current_cluster->sum_of_obs[dpoint]/(float)current_cluster->size;
 //            if (temp_calc != current_cluster->centroid[dpoint]) {
-            if (temp_calc - current_cluster->centroid[dpoint] < EPS) {
+            if (temp_calc - current_cluster->centroid[dpoint] < EPS || temp_calc - current_cluster->centroid[dpoint] > -EPS) {
                 /*check if the centroid in place dpoint should be updated*/
                 current_cluster->centroid[dpoint] = temp_calc;
                 is_changed = 1;
@@ -295,125 +286,4 @@ static int update_centroid(Cluster **clusters_array, int k, int d){
         }
     }
     return is_changed;
-}
-
-static void convert_index_to_c(PyObject *index, long* index_c){
-    /*convert index list to C */
-    int i;
-    PyObject *ind;
-    Py_ssize_t index_num;
-    index_num=PyList_Size(index);
-    for (i=0; i<index_num; i++){
-        ind=PyList_GetItem(index, i);
-        if (!PyLong_Check(ind)){
-                PyErr_Format(PyExc_ValueError, ERROR_MSG);
-                }
-        index_c[i]=PyLong_AsLong(ind);
-        if (index_c[i]==-1 && PyErr_Occurred()){
-            PyErr_Format(PyExc_ValueError, ERROR_MSG);
-        }
-    }
-}
-
-static PyObject* convert_cluster_to_py(long* obs_cluster_array, int n){
-    /*convert index list to C */
-    int i;
-    PyObject *cluster, *clusters_list=PyList_New(n);
-    for (i=0; i<n; i++){
-        cluster=Py_BuildValue("i", obs_cluster_array[i]);
-        PyList_SetItem(clusters_list, i, cluster);
-    }
-    return clusters_list;
-}
-
-
-
-static PyObject* run (PyObject *self, PyObject *args){
-    /*
-    * this function is the module's endpoint for communicating with python script
-    * the function calculates kmeans algorithm and prints it to the requested file.
-    * args:
-        input_observation - matrix of observation where the first k observation are the clusters
-        K - number of centroids required
-        N - number of observations
-        d - the dimension of each observation
-        MAX - max iterations the script should do
-        index - the origin index of the observation where the k first is the k centroids we start with
-    * returns a list of clusters to python if the process ended successfully
-    */
-
-    int K,N,d,MAX_ITER;
-    PyObject *input_observation, *index, *clusters_list;
-    long* index_c, *obs_cluster_array;
-
-    if(!PyArg_ParseTuple(args, "(OiiiiO):run", &input_observation, &K, &N, &d, &MAX_ITER, &index)) {
-        return PyErr_Format(PyExc_ValueError, "error in args");
-    }
-    if (!PyList_Check(input_observation)){
-        return PyErr_Format(PyExc_ValueError, "not a list");
-    }
-     if (!PyList_Check(index)){
-        return PyErr_Format(PyExc_ValueError, "not a list");
-    }
-
-    index_c=malloc(N*sizeof(long));
-    if (index_c==NULL){
-    PyErr_Format(PyExc_ValueError, ERROR_MSG);
-    }
-    convert_index_to_c(index, index_c);
-    obs_cluster_array=malloc(N*sizeof(long));
-    if (obs_cluster_array==NULL){
-       PyErr_Format(PyExc_ValueError, ERROR_MSG);
-    }
-    //run kmeans
-    if (kmeans(input_observation, K, N, d, MAX_ITER, index_c, obs_cluster_array)==-1){
-        PyErr_Format(PyExc_ValueError, ERROR_MSG);
-    }
-    //convert c list to pyobject
-    clusters_list=convert_cluster_to_py(obs_cluster_array,N);
-    free(obs_cluster_array);
-    free(index_c);
-    return clusters_list;
-}
-
-
-
-
-
-static PyMethodDef capiMethods[] = {
-    {"run",                   /* the Python method name that will be used */
-     (PyCFunction)run, /* the C-function that implements the Python function and returns static PyObject*  */
-      METH_VARARGS,           /* flags indicating parametersaccepted for this function */
-      PyDoc_STR("kmeans++")}, /*  The docstring for the function */
-    {NULL, NULL, 0, NULL}     /* The last entry must be all NULL as shown to act as a
-                                 sentinel. Python looks for this entry to know that all
-                                 of the functions for the module have been defined. */
-};
-
-
-/* This initiates the module using the above definitions. */
-static struct PyModuleDef moduledef = {
-    PyModuleDef_HEAD_INIT,
-    "mykmeanssp", /* name of module */
-    NULL, /* module documentation, may be NULL */
-    -1,  /* size of per-interpreter state of the module, or -1 if the module keeps state in global variables. */
-    capiMethods /* the PyMethodDef array from before containing the methods of the extension */
-};
-
-
-/*
- * The PyModuleDef structure, in turn, must be passed to the interpreter in the module’s initialization function.
- * The initialization function must be named PyInit_name(), where name is the name of the module and should match
- * what we wrote in struct PyModuleDef.
- * This should be the only non-static item defined in the module file
- */
-PyMODINIT_FUNC
-PyInit_mykmeanssp(void)
-{
-    PyObject *m;
-    m = PyModule_Create(&moduledef);
-    if (!m) {
-        return NULL;
-    }
-    return m;
 }
