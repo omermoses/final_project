@@ -1,3 +1,7 @@
+"""
+Main.py receives the arguments from the user, generates data and starts the execution of Spectral Clustering and k means
+The module uses capi.c, kmeans.py and export data to provide his service.
+"""
 import argparse
 import random
 import time
@@ -9,9 +13,8 @@ import kmeans
 from sklearn.datasets import make_blobs
 import export_data
 
-#MAXIMUM_CAPACITY of 2/3 dim=[n,k]
-MAXIMUM_CAPACITY_2 = [530, 30]
-MAXIMUM_CAPACITY_3 = [520, 30]
+MAXIMUM_CAPACITY_2 = [540, 30]
+MAXIMUM_CAPACITY_3 = [535, 30]
 MAX_ITER = 300
 
 
@@ -23,7 +26,7 @@ def handle_samples(user_k, user_n, is_random):
         header - The integer labels for cluster membership of each sample (ndarray type)
     """
 
-    dimension_number =2#random.randint(2, 3)
+    dimension_number =random.randint(2, 3)
 
     if is_random:
         # The Random flag is true so we choose randomly k and n values
@@ -65,9 +68,6 @@ if __name__ == '__main__':
     my_parser.add_argument('n', action='store', type=int)
     my_parser.add_argument('--Random', default=True, action='store_false', help='Bool type')
 
-    ###for test
-    # my_parser.add_argument('filename', action='store', type=str)
-
     args = my_parser.parse_args()
 
     #print max capacity
@@ -76,14 +76,6 @@ if __name__ == '__main__':
 
     # Generate data for the algorithms
     samples, header, k_generated, n, d = handle_samples(args.k, args.n, args.Random)
-
-    # ####for tests
-    # ndarr=pd.read_csv(args.filename, sep=',',header=None).to_numpy()
-    # samples=ndarr[:,:-1]
-    # header=ndarr[:,-1]
-    # d=3
-    # k_generated=args.k
-    # n=args.n
 
     # Execute Normalized Spectral Clustering Comparison
     if args.Random:

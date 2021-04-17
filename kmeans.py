@@ -1,4 +1,7 @@
-import pandas as pd
+"""
+kmeans.py prepares the data recived from main and uses kmeans.c to calculate the kmeans clusters.
+The module uses capi.c, kmeans.c to provide his service.
+"""
 import numpy as np
 import mykmeanssp as km
 

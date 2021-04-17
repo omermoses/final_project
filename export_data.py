@@ -1,8 +1,9 @@
+"""
+export_data.py creates the project's required files.
+The module uses matplotlib and numpy to provide his service.
+"""
 import matplotlib.pyplot as plt
 import numpy as np
-from collections import defaultdict
-from sklearn.datasets import make_blobs
-
 
 
 def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_generated, k_used, n):
@@ -18,7 +19,7 @@ def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_gener
     return- PDF file with the plots and some data, pdf for clustera and pdf for data
     """
 
-    ###plots
+    # plots
     dimension_number = len(samples[0])
     projection = '3d' if dimension_number == 3 else None
     fig = plt.figure(dpi=500)
@@ -27,24 +28,17 @@ def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_gener
     ax2 = fig.add_subplot(122, projection=projection)
     sctt2 = plot(dimension_number, samples, clusters_kmeans, ax2, "k_means")
     j_k, j_s = jaccard_measure(clusters_kmeans, clusters_spectral, header)
-    if dimension_number==2:
+    if dimension_number == 2:
         fig.text(0.5, -0.2, s=set_text(n, k_generated, k_used, j_k, j_s), fontsize=14, ha='center')
     else:
         fig.text(0.525, 0, s=set_text(n, k_generated, k_used, j_k, j_s), fontsize=14, ha='center')
     plt.show()
     fig.savefig(r'Charts.pdf', bbox_inches='tight')
 
-    # # for tests
-    # fig_1 = plt.figure(dpi=500)
-    # ax3 = fig_1.add_subplot(121, projection=projection)
-    # sctt3 = plot(dimension_number, samples, header, ax3, "make blobs")
-    # plt.show()
-    # fig_1.savefig(r'make_blobs.pdf', bbox_inches='tight')
-
-    ###clusters pdf
+    # clusters pdf
     write_clusters(clusters_kmeans, clusters_spectral, k_used)
 
-    ###data pdf
+    # data pdf
     write_data(samples, header, n)
 
 
@@ -88,9 +82,10 @@ def jaccard_measure(clusters_kmeans, clusters_spectral, origin_header):
                         clusters_kmeans[i] == clusters_kmeans[j]])
     spectral_pairs = set([(i, j) for i in range(len(clusters_spectral)) for j in range(i + 1, len(clusters_spectral)) if
                           clusters_spectral[i] == clusters_spectral[j]])
-    j_kmeans=calculate_j(header_pairs, kmeans_pairs)
-    j_spectral=calculate_j(header_pairs, spectral_pairs)
+    j_kmeans = calculate_j(header_pairs, kmeans_pairs)
+    j_spectral = calculate_j(header_pairs, spectral_pairs)
     return j_kmeans, j_spectral
+
 
 def calculate_j(set_1, set_2):
     intersect = 0
@@ -100,7 +95,7 @@ def calculate_j(set_1, set_2):
     return intersect / (len(set_1) + len(set_2) - intersect)
 
 
-def write_clusters(clusters_kmeans, clusters_spectral ,k_used):
+def write_clusters(clusters_kmeans, clusters_spectral, k_used):
     with open("clusters.txt", 'w') as file:
         file.write(str(k_used) + '\n')
         for i in range(k_used):
@@ -114,9 +109,3 @@ def write_data(observations, clusters, n):
         for i in range(n):
             # file.write(','.join(map(str, observations[i])) + ',' + str(clusters[i]) + '\n')
             file.write(','.join(map("{:.8f}".format, observations[i])) + ',' + str(clusters[i]) + '\n')
-
-
-# samples, header = make_blobs(n_samples=7, centers=3, n_features=2,
-#                        random_state=0)
-#
-# create_pdf_file(samples, header, [1,1,2,2,0,0,1], [1,1,0,2,2,0,1] ,3, 3, 7)

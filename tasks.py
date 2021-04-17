@@ -25,7 +25,6 @@ def run(c, k=-1, n=-1, Random=True):
         c.run("python3.8.5 main.py {} {}".format(k, n))
     else:
         c.run("python3.8.5 main.py {} {} --Random".format(k, n))
-        # c.run("python3.8.5 main.py {} {} --Random {}".format(k, n, text))
 
 
 

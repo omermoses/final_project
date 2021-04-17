@@ -1,3 +1,7 @@
+/*
+kmeans.c executes the calculation for kmeans algorithm of the project.
+The module triggered by kmeans.py connected via capi.c file.
+*/
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "kmeans.h" //include kmeans header
