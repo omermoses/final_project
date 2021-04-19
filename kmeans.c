@@ -1,7 +1,9 @@
 /*
-kmeans.c executes the calculation for kmeans algorithm of the project.
+kmeans.c executes the calculation for k-means++ algorithm of the project.
+k-means++ algorithm calculates k clusters fron n samples.
 The module triggered by kmeans.py connected via capi.c file.
 */
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "kmeans.h" //include kmeans header
@@ -281,7 +283,6 @@ static int update_centroid(Cluster **clusters_array, int k, int d){
         current_cluster= clusters_array[cluster_index];
         for (dpoint=0; dpoint<d; dpoint++){
             temp_calc = current_cluster->sum_of_obs[dpoint]/(float)current_cluster->size;
-//            if (temp_calc != current_cluster->centroid[dpoint]) {
             if (temp_calc - current_cluster->centroid[dpoint] < EPS || temp_calc - current_cluster->centroid[dpoint] > -EPS) {
                 /*check if the centroid in place dpoint should be updated*/
                 current_cluster->centroid[dpoint] = temp_calc;
