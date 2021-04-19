@@ -107,8 +107,9 @@ def write_clusters(clusters_kmeans, clusters_spectral, k_used):
         file.write(str(k_used) + '\n')
         for i in range(k_used):
             file.write(','.join(map(str, np.argwhere(clusters_spectral == i).flatten())) + '\n')
-        for i in range(k_used):
+        for i in range(k_used-1):
             file.write(','.join(map(str, np.argwhere(clusters_kmeans == i).flatten())) + '\n')
+        file.write(','.join(map(str, np.argwhere(clusters_kmeans == k_used-1).flatten())))
 
 
 def write_data(observations, clusters, n):
@@ -117,5 +118,7 @@ def write_data(observations, clusters, n):
     data.txt file.
     """
     with open("data.txt", 'w') as file:
-        for i in range(n):
+        for i in range(n-1):
             file.write(','.join(map("{:.8f}".format, observations[i])) + ',' + str(clusters[i]) + '\n')
+        file.write(','.join(map("{:.8f}".format, observations[n-1])) + ',' + str(clusters[n-1]))
+

@@ -26,7 +26,7 @@ def handle_samples(user_k, user_n, is_random):
         header - The integer labels for cluster membership of each sample (ndarray type)
     """
 
-    dimension_number =random.randint(2, 3)
+    dimension_number = random.randint(2, 3)
 
     if is_random:
         # The Random flag is true so we choose randomly k and n values
@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
     args = my_parser.parse_args()
 
-    #print max capacity
+    # print max capacity
     print("Maximum capacity of 2 dimension points is N={} K={}".format(MAXIMUM_CAPACITY_2[0], MAXIMUM_CAPACITY_2[1]))
     print("Maximum capacity of 3 dimension points is N={} K={}".format(MAXIMUM_CAPACITY_3[0], MAXIMUM_CAPACITY_3[1]))
 
