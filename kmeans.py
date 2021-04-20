@@ -25,12 +25,7 @@ def k_mean(K, N, d, MAX_ITER, observations_matrix):
     ind = [i for i in range(N) if i not in centroid_index_arr]
     data_origin_index = (np.concatenate((centroid_index_arr, ind))).tolist()
     observations_matrix = (np.concatenate((centroids_matrix, observations_matrix[ind]), axis=0)).tolist()
-    try:
-        return km.run([observations_matrix, K, N, d, MAX_ITER, data_origin_index])
-    except Exception as e:
-        print(f"there was an error while calculating k mean using C-API "
-              f"there error is {e}")
-        exit(1)
+    return km.run([observations_matrix, K, N, d, MAX_ITER, data_origin_index])
 
 
 def create_k_clusters(observations_matrix, N, K, d, centroid_index_arr):
