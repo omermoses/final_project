@@ -31,8 +31,9 @@ def k_mean(K, N, d, MAX_ITER, observations_matrix):
     try:
         return km.run([observations_matrix, K, N, d, MAX_ITER, data_origin_index])
     except Exception as e:
-        print(f"there was an error while calculating k mean using C-API "
-              f"there error is {e}")
+        # print(f"there was an error while calculating k mean using C-API\n"
+        print(f"The program ended due to an error.\n"
+              f"the error is: {e}")
         exit(1)
 
 

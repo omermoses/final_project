@@ -63,27 +63,27 @@ static PyObject* run (PyObject *self, PyObject *args){
     long* index_c, *obs_cluster_array;
 
     if(!PyArg_ParseTuple(args, "(OiiiiO):run", &input_observation, &K, &N, &d, &MAX_ITER, &index)) {
-        return PyErr_Format(PyExc_ValueError, "error in args");
+        return PyErr_Format(PyExc_ValueError,"%s,\nk-means c-api missing arguments",ERROR_MSG);
     }
     if (!PyList_Check(input_observation)){
-        return PyErr_Format(PyExc_ValueError, "not a list");
+        return PyErr_Format(PyExc_ValueError, "%s,\ninput_observation should be a list", ERROR_MSG);
     }
      if (!PyList_Check(index)){
-        return PyErr_Format(PyExc_ValueError, "not a list");
+        return PyErr_Format(PyExc_ValueError, "%s,\ndata_origin_index should be a list", ERROR_MSG);
     }
 
     index_c=malloc(N*sizeof(long));
     if (index_c==NULL){
-    PyErr_Format(PyExc_ValueError, ERROR_MSG);
+        return PyErr_Format(PyExc_ValueError, "%s,\nmemory allocation failed",ERROR_MSG);
     }
     convert_index_to_c(index, index_c);
     obs_cluster_array=malloc(N*sizeof(long));
     if (obs_cluster_array==NULL){
-       PyErr_Format(PyExc_ValueError, ERROR_MSG);
+        return PyErr_Format(PyExc_ValueError, "%s,\nmemory allocation failed",ERROR_MSG);
     }
     //run kmeans
     if (kmeans(input_observation, K, N, d, MAX_ITER, index_c, obs_cluster_array)==-1){
-        PyErr_Format(PyExc_ValueError, ERROR_MSG);
+        return PyErr_Format(PyExc_ValueError, "%s,\nmemory allocation failed",ERROR_MSG);
     }
     //convert c list to pyobject
     clusters_list=convert_cluster_to_py(obs_cluster_array,N);

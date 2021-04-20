@@ -29,7 +29,7 @@ def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_gener
     sctt2 = plot(dimension_number, samples, clusters_kmeans, ax2, "k_means")
     j_k, j_s = jaccard_measure(clusters_kmeans, clusters_spectral, header)
     if dimension_number == 2:
-        fig.text(0.5, -0.2, s=set_text(n, k_generated, k_used, j_k, j_s), fontsize=14, ha='center')
+        fig.text(0.485, -0.2, s=set_text(n, k_generated, k_used, j_k, j_s), fontsize=14, ha='center')
     else:
         fig.text(0.525, 0, s=set_text(n, k_generated, k_used, j_k, j_s), fontsize=14, ha='center')
     plt.show()

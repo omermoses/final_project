@@ -106,7 +106,7 @@ int kmeans(PyObject *observations, int k, int n, int d, int max_iter, long* inde
 
 static void convert_obs(Observation **input_values, PyObject *observations, int n, int d){
     /*
-    * convert the PyObject type observations to arrys of type double
+    * convert the PyObject type observations to arrays of type double
     */
     int i, j;
     PyObject *obs, *val;
@@ -115,18 +115,18 @@ static void convert_obs(Observation **input_values, PyObject *observations, int 
     for (i=0; i<obs_num; i++){
         obs=PyList_GetItem(observations, i);
         if (!PyList_Check(obs)){
-           PyErr_Format(PyExc_ValueError, ERROR_MSG);
+           PyErr_Format(PyExc_ValueError,"%s,\nobservation should be a list",ERROR_MSG);
         }
         obs_size=PyList_Size(obs);
         for (j=0; j<obs_size; j++){
             val=PyList_GetItem(obs, j);
             if (!PyFloat_Check(val)){
-                PyErr_Format(PyExc_ValueError, ERROR_MSG);
+                PyErr_Format(PyExc_ValueError, "%s,\nitems should be floats",ERROR_MSG);
                 }
             input_values[i]->values[j]=PyFloat_AsDouble(val);
             if (input_values[i]->values[j]== -1 && PyErr_Occurred()){
             /* double too big to fit in a C float, bail out */
-                PyErr_Format(PyExc_ValueError, ERROR_MSG);
+                PyErr_Format(PyExc_ValueError, "%s,PyFloat_AsDouble() failed\n",ERROR_MSG);
             }
         }
     }
@@ -141,6 +141,7 @@ static void create_clusters_array(long *obs_cluster_array, Observation **input_v
 }
 
 static int create_k_clusters(Observation **observations, Cluster **clusters_array, int k, int d) {
+    /* create clusters array */
     int index;
     for (index = 0; index < k; index++) {
         clusters_array[index] = malloc(sizeof(Cluster));
@@ -168,6 +169,7 @@ static void copy(const double *values, double *sum_of_obs, int d) {
 }
 
 static int init(Observation **observations, int n, int d) {
+    /* allocate memory for observations */
     int i;
     for (i = 0; i < n; i++) {
         observations[i] = malloc(sizeof(Observation));
@@ -184,6 +186,7 @@ static int init(Observation **observations, int n, int d) {
 }
 
 static void clean(Observation **observations, int n, Cluster **cluster_array, int k) {
+    /* free all the memory */
     int i,j;
     for (i = 0; i < n; i++) {
         free(observations[i]->values);
