@@ -1,10 +1,10 @@
 """
-export_data.py creates the project's required files.
+export_data.py creates the project's required files- data.txt, clusters.txt and Charts.pdf.
 The module uses matplotlib and numpy to provide his service.
 """
+
 import matplotlib.pyplot as plt
 import numpy as np
-
 
 def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_generated, k_used, n):
     """
@@ -35,11 +35,12 @@ def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_gener
     plt.show()
     fig.savefig(r'Charts.pdf', bbox_inches='tight')
 
-    # clusters pdf
+    # data file
+    write_data(samples, header, n)
+
+    # clusters file
     write_clusters(clusters_kmeans, clusters_spectral, k_used)
 
-    # data pdf
-    write_data(samples, header, n)
 
 
 def plot(dimension_number, samples, clusters, ax, title):
@@ -96,16 +97,28 @@ def calculate_j(set_1, set_2):
 
 
 def write_clusters(clusters_kmeans, clusters_spectral, k_used):
+    """
+    writes the number of clusters-k used,
+    the clusters for the data using Normalized Spectral Clustering,
+    and the clusters for the data using k-means++
+    into clusters.txt file.
+    """
     with open("clusters.txt", 'w') as file:
         file.write(str(k_used) + '\n')
         for i in range(k_used):
             file.write(','.join(map(str, np.argwhere(clusters_spectral == i).flatten())) + '\n')
-        for i in range(k_used):
+        for i in range(k_used-1):
             file.write(','.join(map(str, np.argwhere(clusters_kmeans == i).flatten())) + '\n')
+        file.write(','.join(map(str, np.argwhere(clusters_kmeans == k_used-1).flatten())))
 
 
 def write_data(observations, clusters, n):
+    """
+    writes the data from make_blobs with 8 digits after dot, and each point cluster by make_blobs into
+    data.txt file.
+    """
     with open("data.txt", 'w') as file:
-        for i in range(n):
-            # file.write(','.join(map(str, observations[i])) + ',' + str(clusters[i]) + '\n')
+        for i in range(n-1):
             file.write(','.join(map("{:.8f}".format, observations[i])) + ',' + str(clusters[i]) + '\n')
+        file.write(','.join(map("{:.8f}".format, observations[n-1])) + ',' + str(clusters[n-1]))
+

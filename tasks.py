@@ -9,6 +9,7 @@ def delete(c):
 @task()
 def build(c):
     c.run("python3.8.5 setup.py build_ext --inplace")
+
     print("Done building")
 
 
@@ -25,6 +26,7 @@ def run(c, k=-1, n=-1, Random=True):
         c.run("python3.8.5 main.py {} {}".format(k, n))
     else:
         c.run("python3.8.5 main.py {} {} --Random".format(k, n))
+
 
 
 

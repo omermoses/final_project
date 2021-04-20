@@ -1,7 +1,8 @@
 /*
-capi.c exposes C API extension for used by kmeans.py. This module makes the required type converts between c and python
+capi.c exposes C API extension for used by kmeans.py. This module makes the required type converts between c and python.
 The module triggered by kmeans.py.
 */
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "kmeans.h" //include kmeans header

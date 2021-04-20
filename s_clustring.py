@@ -1,12 +1,30 @@
 """
-s_clustering.py calculate the k and the data which will be provided to k-means algorithm
+    s_clustering.py calculate the number of clusters-k and the new data matrix-T using Normalized Spectral Clustering.
+    this data and k will be provided to k-means++ algorithm for the clustering.
+
+    Normalized Spectral Clustering uses the original samples from make_blobs-n samples with 2/3 dims, and returns a new
+    data matrix with size nXk, which will be used for clustering using k-means++.
+    the main function- spectral_clustering,
+    help functions- create_weighted_adjacency_matrix
+                    calculate_L_norm
+                    gram_schmidt
+                    qr_algorithm
+                    eigengap_heuristic
+                    create_t_matrix
 """
+
 import numpy as np
 
 EPS = 0.0001
 
-
 def spectral_clustering(data, n, k):
+    """
+    params: data- ndarray with the samples in the rows
+            n- number of samples
+            k- int if Random==False, else None
+    return: k- int-original k or by eigengap_heuristic
+            T- the new data matrix as ndarray
+    """
     # Calculate weighted adjacency matrix
     W = create_weighted_adjacency_matrix(data, n)
 
@@ -15,13 +33,14 @@ def spectral_clustering(data, n, k):
 
     # Find eigenvalues and eigenvectors
     A, Q = qr_algorithm(LN, n)
-    # Sorted eigenvalues and eigenvectors
+
+    # Sort eigenvalues and eigenvectors
     sorted_eigenvalues_index = np.argsort(np.diagonal(A))
     sorted_eigenvalues = np.diagonal(A)[sorted_eigenvalues_index]
     sorted_eigenvectors = Q[:, sorted_eigenvalues_index]
 
     if (k is None):
-        # Determine k, else - use the k from function params
+        # Determine k if Random==True, else - use the k from function params
         k = eigengap_heuristic(sorted_eigenvalues, n)  # (int)
 
     # Create U
@@ -38,8 +57,7 @@ def create_weighted_adjacency_matrix(data, n):
     create W
     params: data- ndarray with the samples in the rows
             n- number of samples
-        return: W- weighted_adjacency_matrix
-
+    return: W- weighted_adjacency_matrix
     """
     W = np.zeros((n, n))
 
@@ -60,17 +78,18 @@ def calculate_L_norm(W, n):
 
     """
     D_times_half = np.diag(np.power(np.sum(W, axis=1, dtype='float64'), -0.5))
+    # create L using D_times_0.5
     return np.identity(n, dtype='float64') - (np.dot(np.dot(D_times_half, W), D_times_half))
 
 
 def gram_schmidt(A, n):
     """
-            calculate Modified Gram Schmidt
-            params: A- ndarray of size nXn with dtype='float64'
-                    n- A dim
-            return: Q- orthogonal matrix
-                    R- diagonal matrix
-        """
+    calculate Q,R using Modified Gram Schmidt
+    params: A- ndarray of size nXn with dtype='float64'
+            n- A dim
+    return: Q- orthogonal matrix
+            R- diagonal matrix
+    """
     U = A.copy()
     Q = np.zeros((n, n))
     R = np.zeros((n, n))
@@ -90,12 +109,11 @@ def gram_schmidt(A, n):
 
 def qr_algorithm(A, n):
     """
-    calculate eigenvalues and eigenvectors
+    calculate eigenvalues (a diagonal) and eigenvectors (q)
     params: A- ndarray of size nXn with dtype='float64'
             n- A dim
     return: a- matrix with the eigenvalues on the diagonal
             q- eigenvectors as columns
-
     """
     a = A
     q = np.identity(n, dtype=np.float64)
@@ -112,11 +130,11 @@ def qr_algorithm(A, n):
 
 def eigengap_heuristic(eigenvals_array, n):
     """
-       determine k
-       params: eigenvals_array- ***sorted*** eigenvalues
-               n- number of samples
-       return: k- argmax(delta_i) when i from 0...n/2-1
-       """
+    determine k
+    params: eigenvals_array- sorted
+            n- number of samples
+    return: k- argmax(delta_i) when i from 0...(n/2)-1
+    """
     i = int(np.ceil(n / 2))  # celling(n/2)
     gaps = np.abs(eigenvals_array[1:i + 1] - eigenvals_array[:i])
     k = np.argmax(gaps)  # returns the smallest index in case of equility
@@ -125,8 +143,9 @@ def eigengap_heuristic(eigenvals_array, n):
 
 def create_t_matrix(U, n):
     """
-    Form matrix T from U by renormalizing each of U’s rows to have unit length,
-
-    :return:
+    Form matrix T from U
+    params: U-sorted_eigenvectors
+            n- number of samples
+    return: T-new data matrix- shape nXk
     """
     return U / (np.power(np.sum(np.power(U, 2), axis=1), 0.5)).reshape(n, 1)

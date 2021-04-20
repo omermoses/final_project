@@ -1,14 +1,14 @@
 """
-Main.py receives the arguments from the user, generates data and starts the execution of Spectral Clustering and k means
-The module uses capi.c, kmeans.py and export data to provide his service.
+Main.py receives the arguments from the user, generates data using function handle_samples
+and starts the execution of Normalized Spectral Clustering and k means++.
+after generating the data, the Main uses export_data in order to create  data.txt, clusters.txt and Charts.pdf.
 """
+
 import argparse
 import random
 import time
 import numpy as np
-
 import s_clustring
-
 import kmeans
 from sklearn.datasets import make_blobs
 import export_data
@@ -26,7 +26,7 @@ def handle_samples(user_k, user_n, is_random):
         header - The integer labels for cluster membership of each sample (ndarray type)
     """
 
-    dimension_number =random.randint(2, 3)
+    dimension_number = random.randint(2, 3)
 
     if is_random:
         # The Random flag is true so we choose randomly k and n values
@@ -43,7 +43,6 @@ def handle_samples(user_k, user_n, is_random):
         if k <= 0 or n <= 0:
             # if the user didn't entered values for k/n, the default is -1 and it's an error
             # if the users k/n is <=0 it's an error
-            # print("parameters should be greater then 0")
             print("parameters are missing or incorrect")
             exit(1)
 
@@ -70,7 +69,7 @@ if __name__ == '__main__':
 
     args = my_parser.parse_args()
 
-    #print max capacity
+    # print max capacity
     print("Maximum capacity of 2 dimension points is N={} K={}".format(MAXIMUM_CAPACITY_2[0], MAXIMUM_CAPACITY_2[1]))
     print("Maximum capacity of 3 dimension points is N={} K={}".format(MAXIMUM_CAPACITY_3[0], MAXIMUM_CAPACITY_3[1]))
 
