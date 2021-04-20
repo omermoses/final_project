@@ -31,6 +31,7 @@ def k_mean(K, N, d, MAX_ITER, observations_matrix):
     return km.run([observations_matrix, K, N, d, MAX_ITER, data_origin_index])
 
 
+
 def create_k_clusters(observations_matrix, N, K, d, centroid_index_arr):
     """
     find the initial k centroids.

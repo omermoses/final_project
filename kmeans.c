@@ -165,7 +165,6 @@ static void copy(const double *values, double *sum_of_obs, int d) {
     for (i=0; i<d; i++){
         sum_of_obs[i]=values[i];
     }
-
 }
 
 static int init(Observation **observations, int n, int d) {
