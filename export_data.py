@@ -114,11 +114,11 @@ def write_clusters(clusters_kmeans, clusters_spectral, k_used):
 
 def write_data(observations, clusters, n):
     """
-    writes the data from make_blobs with 8 digits after dot, and each point cluster by make_blobs into
+    writes the data from make_blobs, and each point cluster by make_blobs into
     data.txt file.
     """
     with open("data.txt", 'w') as file:
         for i in range(n-1):
-            file.write(','.join(map("{:.8f}".format, observations[i])) + ',' + str(clusters[i]) + '\n')
-        file.write(','.join(map("{:.8f}".format, observations[n-1])) + ',' + str(clusters[n-1]))
+            file.write(','.join(map(str, observations[i])) + ',' + str(clusters[i]) + '\n')
+        file.write(','.join(map(str, observations[n-1])) + ',' + str(clusters[n-1]))
 
