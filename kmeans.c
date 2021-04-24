@@ -53,6 +53,12 @@ static void copy(const double *values, double *sum_of_obs, int d);
 
 int kmeans(PyObject *observations, int k, int n, int d, int max_iter, long* index, long* obs_cluster_array) {
     /*
+    runs k means algorithm
+    params: observations - The data to run kmeans on
+            k - number of clusters
+            n- number of samples
+            d- samples dimensions
+            max_iter - number of iterations to execute
     returns an array of n ints where arr[i]=cluster of obs i in the original data
     */
     Observation **input_values;
@@ -107,7 +113,10 @@ int kmeans(PyObject *observations, int k, int n, int d, int max_iter, long* inde
 
 static void convert_obs(Observation **input_values, PyObject *observations, int n, int d){
     /*
-    * convert the PyObject type observations to arrays of type double
+    convert the PyObject type observations to arrays of type double
+    params: observations - The data
+            n- number of samples
+            d- samples dimensions
     */
     int i, j;
     PyObject *obs, *val;
@@ -134,7 +143,9 @@ static void convert_obs(Observation **input_values, PyObject *observations, int 
 }
 
 static void create_clusters_array(long *obs_cluster_array, Observation **input_values, long* index, int n){
-    // create an array where arr[original index of observation]=the cluster obs belongs to
+     /*
+    create an array where arr[original index of observation]=the cluster obs belongs to
+    */
     int i;
     for (i=0; i<n; i++){
         obs_cluster_array[index[i]]=input_values[i]->cluster->name;
