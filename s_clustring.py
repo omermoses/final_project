@@ -103,7 +103,6 @@ def gram_schmidt(A, n):
             Q_i = Q[:, i] = U_i / norm
         R[i, i + 1:n] = np.einsum('i,ij->j', Q_i, U[:, i + 1:n])
         U[:, i + 1:n] -= np.einsum('i,j->ji', R[i, i + 1:n], Q_i)
-
     return Q, R
 
 

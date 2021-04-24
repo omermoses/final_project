@@ -12,6 +12,7 @@ import s_clustring
 import kmeans
 from sklearn.datasets import make_blobs
 import export_data
+import pandas as pd
 
 MAXIMUM_CAPACITY_2 = [540, 30]
 MAXIMUM_CAPACITY_3 = [535, 30]
@@ -66,7 +67,6 @@ if __name__ == '__main__':
     my_parser.add_argument('k', action='store', type=int)
     my_parser.add_argument('n', action='store', type=int)
     my_parser.add_argument('--Random', default=True, action='store_false', help='Bool type')
-
     args = my_parser.parse_args()
 
     # print max capacity

@@ -202,7 +202,6 @@ static void clean(Observation **observations, int n, Cluster **cluster_array, in
     free(cluster_array);
 }
 
-
 static void find_closest_cluster(Observation *observation, Cluster **clusters_array, int k, int d) {
     /*find closest cluster for observation (of class Observation)
     size of clusters_array is K, each index is of struct Cluster */

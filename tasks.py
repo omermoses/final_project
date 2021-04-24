@@ -14,7 +14,7 @@ def build(c):
 
 
 @task(pre=[build], post=[delete], optional=['k','n'])
-def run(c, k=-1, n=-1, Random=True):
+def run(c,k=-1, n=-1, Random=True):
     """
         run calls build, then runs the main program, and after calls delete.
         default value of k,n is -1
@@ -26,6 +26,7 @@ def run(c, k=-1, n=-1, Random=True):
         c.run("python3.8.5 main.py {} {}".format(k, n))
     else:
         c.run("python3.8.5 main.py {} {} --Random".format(k, n))
+
 
 
 
