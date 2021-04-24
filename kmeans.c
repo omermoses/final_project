@@ -75,8 +75,9 @@ int kmeans(PyObject *observations, int k, int n, int d, int max_iter, long* inde
 
     clusters_array=malloc(k*sizeof(Cluster));
     if (clusters_array==NULL){
+       clean(input_values, n, NULL, 0);
        return -1;
-        }
+    }
 
     while (is_changed_from_last_run == 1 && (number_of_iter <= max_iter)) {
         /*main loop*/
@@ -145,14 +146,24 @@ static int create_k_clusters(Observation **observations, Cluster **clusters_arra
     int index;
     for (index = 0; index < k; index++) {
         clusters_array[index] = malloc(sizeof(Cluster));
-        if (clusters_array[index]==NULL){ return -1; }
+        if (clusters_array[index]==NULL){
+            clean(observations, n, clusters_array, index);
+            return -1;
+        }
         clusters_array[index]->name = index;
         clusters_array[index]->size = 1;
         clusters_array[index]->centroid = calloc(d, sizeof(double ));
-        if (clusters_array[index]->centroid==NULL){ return -1; }
+        if (clusters_array[index]->centroid==NULL){
+            free(cluster_array[index]);
+            clean(observations, n, clusters_array, index);
+            return -1;
+        }
         copy(observations[index]->values, clusters_array[index]->centroid, d);
         clusters_array[index]->sum_of_obs = calloc(d, sizeof(double ));
         if (clusters_array[index]->sum_of_obs ==NULL){
+            free(cluster_array[index]->centroid);
+            free(cluster_array[index]);
+            clean(observations, n, clusters_array, index);
             return -1;
         }
         copy(observations[index]->values, clusters_array[index]->sum_of_obs, d);
@@ -174,10 +185,13 @@ static int init(Observation **observations, int n, int d) {
     for (i = 0; i < n; i++) {
         observations[i] = malloc(sizeof(Observation));
         if (observations[i]==NULL){
+            clean(observations, i, NULL, 0);
             return -1;
         }
         observations[i]->values = (double *) calloc(d, sizeof(double));
         if (observations[i]->values==NULL){
+            free(observations[i]);
+            clean(observations, i, NULL, 0);
             return -1;
             }
         observations[i]->cluster = NULL;
@@ -188,18 +202,22 @@ static int init(Observation **observations, int n, int d) {
 static void clean(Observation **observations, int n, Cluster **cluster_array, int k) {
     /* free all the memory */
     int i,j;
-    for (i = 0; i < n; i++) {
-        free(observations[i]->values);
-        free(observations[i]);
+    if (observations != NULL){
+        for (i = 0; i < n; i++) {
+            free(observations[i]->values);
+            free(observations[i]);
+        }
+        free(observations);
     }
-    free(observations);
 
-    for (j = 0; j < k; j++) {
-        free(cluster_array[j]->sum_of_obs);
-        free(cluster_array[j]->centroid);
-        free(cluster_array[j]);
+    if (cluster_array != NULL){
+        for (j = 0; j < k; j++) {
+            free(cluster_array[j]->sum_of_obs);
+            free(cluster_array[j]->centroid);
+            free(cluster_array[j]);
+        }
+        free(cluster_array);
     }
-    free(cluster_array);
 }
 
 

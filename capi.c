@@ -79,6 +79,7 @@ static PyObject* run (PyObject *self, PyObject *args){
     convert_index_to_c(index, index_c);
     obs_cluster_array=malloc(N*sizeof(long));
     if (obs_cluster_array==NULL){
+        free(index_c);
         return PyErr_Format(PyExc_ValueError, "%s,\nmemory allocation failed",ERROR_MSG);
     }
     //run kmeans
