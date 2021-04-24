@@ -47,7 +47,7 @@ static int update_centroid(Cluster **clusters_array, int k, int d);
 
 static void insert_obs(Observation *observation, Cluster *best_cluster, int d);
 
-static int create_k_clusters(Observation **observations, Cluster **clusters_array, int k, int d, int n) {
+static int create_k_clusters(Observation **observations, Cluster **clusters_array, int k, int d, int n);
 
 static void copy(const double *values, double *sum_of_obs, int d);
 
@@ -161,8 +161,8 @@ static int create_k_clusters(Observation **observations, Cluster **clusters_arra
         copy(observations[index]->values, clusters_array[index]->centroid, d);
         clusters_array[index]->sum_of_obs = calloc(d, sizeof(double ));
         if (clusters_array[index]->sum_of_obs ==NULL){
-            free(cluster_array[index]->centroid);
-            free(cluster_array[index]);
+            free(clusters_array[index]->centroid);
+            free(clusters_array[index]);
             clean(observations, n, clusters_array, index);
             return -1;
         }
