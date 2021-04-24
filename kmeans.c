@@ -47,7 +47,7 @@ static int update_centroid(Cluster **clusters_array, int k, int d);
 
 static void insert_obs(Observation *observation, Cluster *best_cluster, int d);
 
-static int create_k_clusters(Observation **observations, Cluster **clusters_array, int k, int d);
+static int create_k_clusters(Observation **observations, Cluster **clusters_array, int k, int d, int n) {
 
 static void copy(const double *values, double *sum_of_obs, int d);
 
@@ -88,7 +88,7 @@ int kmeans(PyObject *observations, int k, int n, int d, int max_iter, long* inde
 
         } else {
             /*initiate k clusters*/
-            if (create_k_clusters(input_values, clusters_array, k, d)==-1){
+            if (create_k_clusters(input_values, clusters_array, k, d, n)==-1){
             return -1;
             }
             found_k_clusters = 1;
@@ -141,7 +141,7 @@ static void create_clusters_array(long *obs_cluster_array, Observation **input_v
     }
 }
 
-static int create_k_clusters(Observation **observations, Cluster **clusters_array, int k, int d) {
+static int create_k_clusters(Observation **observations, Cluster **clusters_array, int k, int d, int n) {
     /* create clusters array */
     int index;
     for (index = 0; index < k; index++) {
@@ -154,7 +154,7 @@ static int create_k_clusters(Observation **observations, Cluster **clusters_arra
         clusters_array[index]->size = 1;
         clusters_array[index]->centroid = calloc(d, sizeof(double ));
         if (clusters_array[index]->centroid==NULL){
-            free(cluster_array[index]);
+            free(clusters_array[index]);
             clean(observations, n, clusters_array, index);
             return -1;
         }
