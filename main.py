@@ -6,7 +6,6 @@ after generating the data, the Main uses export_data in order to create  data.tx
 
 import argparse
 import random
-import time
 import numpy as np
 import s_clustring
 import kmeans
@@ -60,8 +59,6 @@ if __name__ == '__main__':
         • n - number of data points
         • Random - indicates the way the data is to be generated
     """
-    start = time.time()  ####
-
     my_parser = argparse.ArgumentParser()
     my_parser.add_argument('k', action='store', type=int)
     my_parser.add_argument('n', action='store', type=int)
@@ -89,5 +86,3 @@ if __name__ == '__main__':
 
     # Export data
     export_data.create_pdf_file(samples, header, kmeans_clusters, spectral_clusters, k_generated, k_used, n)
-    end = time.time()  ####
-    print("--- %s seconds ---" % (end - start))  ####

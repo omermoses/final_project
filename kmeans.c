@@ -68,11 +68,10 @@ int kmeans(PyObject *observations, int k, int n, int d, int max_iter, long* inde
     input_values=malloc(n*sizeof(Observation));
     if (input_values==NULL){
         return -1;
-    }
+        }
 
     if (init(input_values, n, d)==-1){
-        return -1;
-    }
+        return -1;}
     convert_obs(input_values, observations, n, d);
 
     is_changed_from_last_run= 1;
