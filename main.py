@@ -12,7 +12,6 @@ import s_clustring
 import kmeans
 from sklearn.datasets import make_blobs
 import export_data
-import pandas as pd
 
 MAXIMUM_CAPACITY_2 = [540, 30]
 MAXIMUM_CAPACITY_3 = [535, 30]
