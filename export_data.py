@@ -33,7 +33,7 @@ def create_pdf_file(samples, header, clusters_kmeans, clusters_spectral, k_gener
     else:
         fig.text(0.525, 0, s=set_text(n, k_generated, k_used, j_k, j_s), fontsize=14, ha='center')
     plt.show()
-    fig.savefig(r'Charts.pdf', bbox_inches='tight')
+    fig.savefig(r'clusters.pdf', bbox_inches='tight')
 
     # data file
     write_data(samples, header, n)
