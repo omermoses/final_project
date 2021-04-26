@@ -17,6 +17,7 @@ import numpy as np
 
 EPS = 0.0001
 
+
 def spectral_clustering(data, n, k):
     """
     params: data- ndarray with the samples in the rows
@@ -97,6 +98,10 @@ def gram_schmidt(A, n):
         U_i = U[:, i]
         norm = np.linalg.norm(U_i, 2)
         R[i, i] = norm
+        # The case where Rii = 0 is rare while the case where Rii <= EPS occurs more frequently.
+        # Due to the fact that a zero division is rare and the case handling impairs the correctness
+        # of the algorithm, since Q is orthogonal and should not contain a zero vector,
+        # we check whether Rii = 0 and handle the zero division respectively.
         if norm == 0:
             Q_i = Q[:, i] = np.zeros(n)
         else:

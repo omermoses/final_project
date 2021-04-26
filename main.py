@@ -12,6 +12,8 @@ import kmeans
 from sklearn.datasets import make_blobs
 import export_data
 
+# note that max capacity may vary due to overload on nova.
+# the values we choose are based on several days and times average.
 MAXIMUM_CAPACITY_2 = [540, 30]
 MAXIMUM_CAPACITY_3 = [535, 30]
 MAX_ITER = 300
